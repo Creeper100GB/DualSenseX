@@ -124,8 +124,8 @@
                                    Margin="0,0,0,4" />
                         <ComboBox Style="{StaticResource DSXComboBox}"
                                   ItemsSource="{Binding AvailableTriggerModes}"
-                                  SelectedItem="{Binding SelectedLeftTriggerMode}"
-                                  Margin="0,0,0,12" />
+                                   SelectedItem="{Binding SelectedLeftTriggerMode}"
+                                   Margin="0,0,0,12" />
 
                         <TextBlock Text="Start Position"
                                    Foreground="{StaticResource TextSecondary}"
@@ -136,10 +136,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding StartPosition}"
+                                    Value="{Binding LeftStartPosition}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding StartPosition}"
+                                       Text="{Binding LeftStartPosition}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -155,10 +155,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding EndPosition}"
+                                    Value="{Binding LeftEndPosition}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding EndPosition}"
+                                       Text="{Binding LeftEndPosition}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -174,10 +174,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding Force}"
+                                    Value="{Binding LeftForce}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Force}"
+                                       Text="{Binding LeftForce}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -193,10 +193,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding Amplitude}"
+                                    Value="{Binding LeftAmplitude}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Amplitude}"
+                                       Text="{Binding LeftAmplitude}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -212,10 +212,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding Frequency}"
+                                    Value="{Binding LeftFrequency}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Frequency}"
+                                       Text="{Binding LeftFrequency}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -274,10 +274,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding StartPosition}"
+                                    Value="{Binding RightStartPosition}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding StartPosition}"
+                                       Text="{Binding RightStartPosition}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -293,10 +293,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding EndPosition}"
+                                    Value="{Binding RightEndPosition}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding EndPosition}"
+                                       Text="{Binding RightEndPosition}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -312,10 +312,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding Force}"
+                                    Value="{Binding RightForce}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Force}"
+                                       Text="{Binding RightForce}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -331,10 +331,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding Amplitude}"
+                                    Value="{Binding RightAmplitude}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Amplitude}"
+                                       Text="{Binding RightAmplitude}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"
@@ -350,10 +350,10 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding Frequency}"
+                                    Value="{Binding RightFrequency}"
                                     Minimum="0" Maximum="255" />
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Frequency}"
+                                       Text="{Binding RightFrequency}"
                                        Foreground="{StaticResource TextSecondary}"
                                        Width="36" TextAlignment="Right"
                                        VerticalAlignment="Center"

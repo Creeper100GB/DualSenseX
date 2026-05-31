@@ -86,4 +86,23 @@ public class BTHapticsConfig
     public double RightMotorIntensity { get; set; } = 50;
     public int LatencyCompensationMs { get; set; }
     public string AudioFilePath { get; set; } = string.Empty;
+    public string HapticsPreset { get; set; } = "Balanced";
+}
+
+public static class HapticsPresets
+{
+    public const string Balanced = "Balanced";
+    public const string BassHeavy = "Bass Heavy";
+    public const string Subtle = "Subtle";
+    public const string Intense = "Intense";
+    public const string MusicLive = "Music Live";
+
+    public static (double left, double right, HapticsSourceMode mode) GetPreset(string preset) => preset switch
+    {
+        BassHeavy => (80, 60, HapticsSourceMode.SoundWaves),
+        Subtle => (30, 30, HapticsSourceMode.SoundWaves),
+        Intense => (100, 100, HapticsSourceMode.SystemCapture),
+        MusicLive => (70, 80, HapticsSourceMode.SoundWaves),
+        _ => (50, 50, HapticsSourceMode.SoundWaves)
+    };
 }

@@ -19,7 +19,7 @@ public sealed class ControllerService : IControllerService, IDisposable
     private readonly ConcurrentDictionary<string, DualSenseOutputReport> _outputReports = new();
     private readonly object _writeLock = new();
     private volatile bool _disposed;
-    private string? _activeControllerId;
+    private volatile string? _activeControllerId;
     private byte _btSequence;
     private LEDMode _activeLEDMode = LEDMode.Off;
     private RainbowSpeed _rainbowSpeed = RainbowSpeed.Medium;
@@ -71,6 +71,7 @@ public sealed class ControllerService : IControllerService, IDisposable
 
     public void StopPolling()
     {
+        StopLEDTimer();
         DeviceList.Local.Changed -= OnDeviceListChanged;
 
         foreach (var kvp in _pollThreads.ToList())
@@ -350,12 +351,14 @@ public sealed class ControllerService : IControllerService, IDisposable
         return _outputReports.TryGetValue(_activeControllerId, out var r) ? r : null;
     }
 
+    private int _sendReportCount;
+
     private void SendReport()
     {
-        if (_activeControllerId == null) { Log("SendReport: no active controller"); return; }
-        if (!_streams.TryGetValue(_activeControllerId, out var stream)) { Log("SendReport: no stream"); return; }
-        if (!_controllers.TryGetValue(_activeControllerId, out var controller)) { Log("SendReport: no controller info"); return; }
-        if (!_outputReports.TryGetValue(_activeControllerId, out var outputReport)) { Log("SendReport: no output report obj"); return; }
+        if (_activeControllerId == null) return;
+        if (!_streams.TryGetValue(_activeControllerId, out var stream)) return;
+        if (!_controllers.TryGetValue(_activeControllerId, out var controller)) return;
+        if (!_outputReports.TryGetValue(_activeControllerId, out var outputReport)) return;
 
         lock (_writeLock)
         {
@@ -371,13 +374,22 @@ public sealed class ControllerService : IControllerService, IDisposable
                     report = outputReport.BuildUSBReport();
                 }
 
-                Log($"SendReport: writing {report.Length} bytes, conn={controller.Connection}");
-                Log($"SendReport HEX: {BitConverter.ToString(report)}");
                 stream.Write(report);
-                Log($"SendReport: OK");
+
+                int count = System.Threading.Interlocked.Increment(ref _sendReportCount);
+                if (count % 500 == 0)
+                {
+                    Log($"SendReport: #{count} {report.Length}B conn={controller.Connection}");
+                }
             }
-            catch (IOException ioex) { Log($"SendReport IOException: {ioex.Message}"); }
-            catch (Exception ex) { Log($"SendReport error: {ex.Message}"); }
+            catch (IOException) { }
+            catch (ObjectDisposedException) { }
+            catch (Exception ex)
+            {
+                int count = System.Threading.Interlocked.CompareExchange(ref _sendReportCount, 0, 0);
+                if (count % 200 == 0)
+                    Log($"SendReport error: {ex.Message}");
+            }
         }
     }
 
@@ -453,6 +465,7 @@ public sealed class ControllerService : IControllerService, IDisposable
         byte[] inputBuffer = new byte[info.Connection == ConnectionType.Bluetooth
             ? BTInputReportSize
             : USBInputReportSize];
+        int consecutiveErrors = 0;
 
         while (!_disposed && _streams.ContainsKey(deviceId))
         {
@@ -460,7 +473,12 @@ public sealed class ControllerService : IControllerService, IDisposable
             {
                 int bytesRead = stream.Read(inputBuffer);
                 if (bytesRead <= 0)
+                {
+                    Thread.Sleep(1);
                     continue;
+                }
+
+                consecutiveErrors = 0;
 
                 byte[] data;
                 if (info.Connection == ConnectionType.Bluetooth && bytesRead > 2)
@@ -489,8 +507,15 @@ public sealed class ControllerService : IControllerService, IDisposable
             {
                 break;
             }
-            catch
+            catch (ObjectDisposedException)
             {
+                break;
+            }
+            catch (Exception)
+            {
+                consecutiveErrors++;
+                if (consecutiveErrors > 100)
+                    break;
                 Thread.Sleep(1);
             }
         }

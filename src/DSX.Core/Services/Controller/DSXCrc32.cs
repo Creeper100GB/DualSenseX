@@ -35,6 +35,9 @@ public static class DSXCrc32
 
     public static void WriteCrc(byte[] report)
     {
+        if (report == null || report.Length < 78)
+            return;
+
         byte[] crcInput = new byte[75];
         crcInput[0] = 0xA2;
         crcInput[1] = report[0];

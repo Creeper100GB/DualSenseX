@@ -40,4 +40,52 @@
         </Setter>
     </Style>
 
+    <Style TargetType="{x:Type controls:ControllerViewControl}">
+        <Setter Property="Width" Value="440" />
+        <Setter Property="Height" Value="280" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:ControllerViewControl}">
+                    <Grid>
+                        <Image Source="pack://application:,,,/DSX;component/Resources/Images/controller_dualsense.png"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center" />
+                        <Canvas x:Name="PART_ButtonCanvas"
+                                ClipToBounds="False">
+                            <Canvas.Resources>
+                                <Style x:Key="ControllerButton" TargetType="Border">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="CornerRadius" Value="4" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                </Style>
+                            </Canvas.Resources>
+                            <Border Canvas.Left="80" Canvas.Top="118" Width="22" Height="22" Style="{StaticResource ControllerButton}" Tag="DPadUp" />
+                            <Border Canvas.Left="80" Canvas.Top="148" Width="22" Height="22" Style="{StaticResource ControllerButton}" Tag="DPadDown" />
+                            <Border Canvas.Left="60" Canvas.Top="128" Width="22" Height="22" Style="{StaticResource ControllerButton}" Tag="DPadLeft" />
+                            <Border Canvas.Left="100" Canvas.Top="128" Width="22" Height="22" Style="{StaticResource ControllerButton}" Tag="DPadRight" />
+                            <Border Canvas.Left="330" Canvas.Top="88" Width="24" Height="24" Style="{StaticResource ControllerButton}" Tag="Triangle" />
+                            <Border Canvas.Left="358" Canvas.Top="118" Width="24" Height="24" Style="{StaticResource ControllerButton}" Tag="Circle" />
+                            <Border Canvas.Left="330" Canvas.Top="148" Width="24" Height="24" Style="{StaticResource ControllerButton}" Tag="Cross" />
+                            <Border Canvas.Left="302" Canvas.Top="118" Width="24" Height="24" Style="{StaticResource ControllerButton}" Tag="Square" />
+                            <Border Canvas.Left="58" Canvas.Top="28" Width="64" Height="18" Style="{StaticResource ControllerButton}" Tag="L2" />
+                            <Border Canvas.Left="320" Canvas.Top="28" Width="64" Height="18" Style="{StaticResource ControllerButton}" Tag="R2" />
+                            <Border Canvas.Left="62" Canvas.Top="52" Width="60" Height="16" Style="{StaticResource ControllerButton}" Tag="L1" />
+                            <Border Canvas.Left="320" Canvas.Top="52" Width="60" Height="16" Style="{StaticResource ControllerButton}" Tag="R1" />
+                            <Border Canvas.Left="162" Canvas.Top="66" Width="28" Height="16" Style="{StaticResource ControllerButton}" Tag="Share" />
+                            <Border Canvas.Left="252" Canvas.Top="66" Width="28" Height="16" Style="{StaticResource ControllerButton}" Tag="Options" />
+                            <Border Canvas.Left="180" Canvas.Top="90" Width="80" Height="34" Style="{StaticResource ControllerButton}" Tag="Touchpad" />
+                            <Border Canvas.Left="206" Canvas.Top="174" Width="22" Height="22" Style="{StaticResource ControllerButton}" Tag="PSButton" />
+                            <Border Canvas.Left="196" Canvas.Top="136" Width="16" Height="16" Style="{StaticResource ControllerButton}" Tag="Mute" />
+                            <Border Canvas.Left="138" Canvas.Top="108" Width="32" Height="32" Style="{StaticResource ControllerButton}" Tag="L3" CornerRadius="16" />
+                            <Border Canvas.Left="270" Canvas.Top="128" Width="32" Height="32" Style="{StaticResource ControllerButton}" Tag="R3" CornerRadius="16" />
+                        </Canvas>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

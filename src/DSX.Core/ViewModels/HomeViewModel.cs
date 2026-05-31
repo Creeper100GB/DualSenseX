@@ -32,6 +32,14 @@ public partial class HomeViewModel : ObservableObject
     [ObservableProperty]
     private bool _isDSXPlusOwner;
 
+    [ObservableProperty]
+    private bool _isControllerConnected;
+
+    [ObservableProperty]
+    private string _macAddress = string.Empty;
+
+    public System.Collections.ObjectModel.ObservableCollection<Notification> Notifications => _main.Notifications;
+
     public HomeViewModel(MainViewModel main)
     {
         _main = main;
@@ -39,6 +47,8 @@ public partial class HomeViewModel : ObservableObject
         {
             if (e.PropertyName == nameof(MainViewModel.ActiveController))
                 UpdateControllerInfo();
+            if (e.PropertyName == nameof(MainViewModel.IsControllerConnected))
+                IsControllerConnected = _main.IsControllerConnected;
             if (e.PropertyName == nameof(MainViewModel.IsDSXPlusOwner))
                 IsDSXPlusOwner = _main.IsDSXPlusOwner;
             if (e.PropertyName == nameof(MainViewModel.AppVersion))
@@ -54,6 +64,7 @@ public partial class HomeViewModel : ObservableObject
         };
         AppVersion = main.AppVersion;
         IsDSXPlusOwner = main.IsDSXPlusOwner;
+        IsControllerConnected = main.IsControllerConnected;
         UpdateControllerInfo();
     }
 
@@ -67,6 +78,8 @@ public partial class HomeViewModel : ObservableObject
             BatteryPercent = 0;
             IsCharging = false;
             BatteryStatusText = "N/A";
+            IsControllerConnected = false;
+            MacAddress = string.Empty;
             return;
         }
 
@@ -74,6 +87,8 @@ public partial class HomeViewModel : ObservableObject
         ConnectionType = controller.Connection;
         BatteryPercent = controller.BatteryPercentage;
         IsCharging = controller.IsCharging;
+        IsControllerConnected = true;
+        MacAddress = controller.MacAddress;
         BatteryStatusText = IsCharging
             ? $"Charging ({BatteryPercent:F0}%)"
             : $"{BatteryPercent:F0}%";

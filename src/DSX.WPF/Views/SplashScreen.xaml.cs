@@ -59,7 +59,9 @@ public partial class SplashScreen : Window
             return;
         }
 
-        ProgressBar.Width = (_progress / 100.0) * (ProgressBar.Parent as FrameworkElement)!.ActualWidth;
+        var parent = ProgressBar.Parent as FrameworkElement;
+        if (parent != null && parent.ActualWidth > 0)
+            ProgressBar.Width = (_progress / 100.0) * parent.ActualWidth;
 
         var stepIndex = (int)(_progress / (100.0 / LoadingSteps.Length));
         if (stepIndex >= LoadingSteps.Length)

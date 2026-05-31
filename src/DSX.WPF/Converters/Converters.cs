@@ -330,3 +330,30 @@ public class LanguageToFlagConverter : IMultiValueConverter
         throw new NotImplementedException();
     }
 }
+
+public class EnumBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == null || parameter == null) return false;
+        var parameterString = parameter.ToString();
+        if (string.IsNullOrEmpty(parameterString)) return false;
+
+        if (value is Enum enumValue)
+            return enumValue.ToString() == parameterString;
+
+        return value.ToString() == parameterString;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == null || parameter == null) return Binding.DoNothing;
+        if (value is bool isChecked && isChecked && parameter is string paramStr)
+        {
+            if (targetType.IsEnum)
+                return Enum.Parse(targetType, paramStr);
+            return paramStr;
+        }
+        return Binding.DoNothing;
+    }
+}

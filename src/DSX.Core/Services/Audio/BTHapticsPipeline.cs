@@ -18,25 +18,46 @@ public sealed class BTHapticsPipeline : IDisposable
     private volatile bool _disposed;
 
     private readonly ConcurrentQueue<AudioChunk> _sampleQueue = new();
-    private const int MaxQueueSize = 60;
-    private const int FftSize = 256;
-    private const int FftSizeLog2 = 8;
+    private const int MaxQueueSize = 80;
+
+    private const int FftSize = 1024;
+    private const int FftSizeLog2 = 10;
 
     private readonly float[] _fftReal = new float[FftSize];
     private readonly float[] _fftImag = new float[FftSize];
     private readonly float[] _hannWindow = new float[FftSize];
+    private readonly float[] _prevMagnitudes = new float[FftSize / 2];
     private int _fftWritePos;
+
     private float _autoGain = 1.0f;
     private float _smoothedLeft;
     private float _smoothedRight;
-    private float _runningMax;
+
+    private readonly float[] _bandEnvelope = new float[5];
+    private readonly float[] _bandPeak = new float[5];
+    private readonly float[] _bandRms = new float[5];
+    private readonly int[] _bandSampleCount = new int[5];
+
+    private float _onsetFlux;
+    private float _onsetThreshold;
+    private float _beatDecay;
+    private int _beatHoldFrames;
+    private float _beatConfidence;
 
     private readonly object _startStopLock = new();
+
+    private const float AttackTimeMs = 5f;
+    private const float ReleaseTimeMs = 50f;
+    private const float BandAttackTimeMs = 3f;
+    private const float BandReleaseTimeMs = 80f;
+    private const float PeakDecayRate = 0.97f;
+    private const float OnsetAlpha = 0.1f;
+    private const float BeatHoldMax = 12f;
 
     public AudioSourceMode AudioSourceMode { get; set; } = AudioSourceMode.SoundCapture;
     public HapticsSourceMode HapticsSourceMode { get; set; } = HapticsSourceMode.SoundWaves;
     public double LeftMotorIntensity { get; set; } = 50.0;
-    public double RightMotorIntensity { get; set; } = 255.0;
+    public double RightMotorIntensity { get; set; } = 50.0;
     public int LatencyCompensationMs { get; set; } = 0;
     public string AudioFilePath { get; set; } = string.Empty;
 
@@ -71,9 +92,19 @@ public sealed class BTHapticsPipeline : IDisposable
             _smoothedLeft = 0f;
             _smoothedRight = 0f;
             _autoGain = 1.0f;
-            _runningMax = 0.01f;
+            _onsetFlux = 0f;
+            _onsetThreshold = 0f;
+            _beatDecay = 0f;
+            _beatHoldFrames = 0;
+            _beatConfidence = 0f;
+
             Array.Clear(_fftReal);
             Array.Clear(_fftImag);
+            Array.Clear(_prevMagnitudes);
+            Array.Clear(_bandEnvelope);
+            Array.Clear(_bandPeak);
+            Array.Clear(_bandRms);
+            Array.Clear(_bandSampleCount);
 
             switch (AudioSourceMode)
             {
@@ -117,7 +148,7 @@ public sealed class BTHapticsPipeline : IDisposable
         StopSoundCapture();
         StopFilePlayback();
 
-        while (_sampleQueue.TryDequeue(out var chunk)) { }
+        while (_sampleQueue.TryDequeue(out _)) { }
 
         _processingThread?.Join(3000);
         _processingThread = null;
@@ -180,7 +211,7 @@ public sealed class BTHapticsPipeline : IDisposable
             }
 
             _fileReader = new AudioFileReader(AudioFilePath);
-            _waveOut = new WaveOutEvent { DesiredLatency = 100 };
+            _waveOut = new WaveOutEvent { DesiredLatency = 50 };
             _waveOut.Init(_fileReader);
             _waveOut.PlaybackStopped += OnFilePlaybackStopped;
             _waveOut.Play();
@@ -208,12 +239,21 @@ public sealed class BTHapticsPipeline : IDisposable
 
         while (_running)
         {
-            int read = _fileReader.Read(buffer, 0, blockSize);
+            int read;
+            try
+            {
+                read = _fileReader.Read(buffer, 0, blockSize);
+            }
+            catch
+            {
+                break;
+            }
+
             if (read <= 0)
             {
                 if (_running)
                 {
-                    _fileReader.Position = 0;
+                    try { _fileReader.Position = 0; } catch { break; }
                     continue;
                 }
                 break;
@@ -311,6 +351,7 @@ public sealed class BTHapticsPipeline : IDisposable
     {
         var samples = chunk.Samples;
         int channels = chunk.Channels;
+        int sampleRate = chunk.SampleRate;
 
         float leftRms = 0, rightRms = 0;
         int leftCount = 0, rightCount = 0;
@@ -340,25 +381,31 @@ public sealed class BTHapticsPipeline : IDisposable
         rightRms = MathF.Sqrt(rightRms / rightCount);
 
         float maxRms = MathF.Max(leftRms, rightRms);
-        _runningMax = MathF.Max(_runningMax * 0.999f, maxRms);
-        _autoGain = MathF.Max(1f, 0.5f / _runningMax);
+        float targetGain = maxRms > 0.001f ? MathF.Min(0.7f / maxRms, 8f) : 1f;
+        _autoGain = _autoGain * 0.95f + targetGain * 0.05f;
+        _autoGain = Math.Min(Math.Max(_autoGain, 0.5f), 8f);
 
         leftRms = MathF.Min(leftRms * _autoGain, 1f);
         rightRms = MathF.Min(rightRms * _autoGain, 1f);
 
-        const float smoothUp = 0.8f;
-        const float smoothDown = 0.2f;
-        float leftAlpha = leftRms > _smoothedLeft ? smoothUp : smoothDown;
-        float rightAlpha = rightRms > _smoothedRight ? smoothUp : smoothDown;
+        float sampleDuration = samples.Length / (float)(channels * sampleRate) * 1000f;
+        float attackAlpha = 1f - MathF.Exp(-sampleDuration / AttackTimeMs);
+        float releaseAlpha = 1f - MathF.Exp(-sampleDuration / ReleaseTimeMs);
+
+        float leftAlpha = leftRms > _smoothedLeft ? attackAlpha : releaseAlpha;
+        float rightAlpha = rightRms > _smoothedRight ? attackAlpha : releaseAlpha;
         _smoothedLeft = _smoothedLeft * (1f - leftAlpha) + leftRms * leftAlpha;
         _smoothedRight = _smoothedRight * (1f - rightAlpha) + rightRms * rightAlpha;
         leftRms = _smoothedLeft;
         rightRms = _smoothedRight;
 
         int monoSampleCount = samples.Length / channels;
-        var mono = new float[monoSampleCount];
+        var mono = monoSampleCount <= 1024
+            ? new float[monoSampleCount]
+            : new float[1024];
 
-        for (int i = 0; i < monoSampleCount; i++)
+        int monoLen = Math.Min(monoSampleCount, mono.Length);
+        for (int i = 0; i < monoLen; i++)
         {
             float sum = 0;
             for (int ch = 0; ch < channels && (i * channels + ch) < samples.Length; ch++)
@@ -366,31 +413,39 @@ public sealed class BTHapticsPipeline : IDisposable
             mono[i] = sum / channels;
         }
 
-        FeedFftBuffer(mono);
+        FeedFftBuffer(mono, monoLen);
 
-        float lowEnergy = 0, midEnergy = 0, highEnergy = 0;
-        bool fftReady = TryComputeFrequencyBands(chunk.SampleRate, ref lowEnergy, ref midEnergy, ref highEnergy);
+        var bands = new float[5];
+        float spectralFlux = 0;
+        bool fftReady = TryComputeFrequencyBands(sampleRate, bands, ref spectralFlux);
+
+        UpdateBandEnvelopes(bands, sampleDuration);
+        DetectOnset(spectralFlux, sampleDuration);
 
         if (LatencyCompensationMs > 0)
             Thread.Sleep(LatencyCompensationMs);
 
-        var haptics = GenerateHaptics(leftRms, rightRms, lowEnergy, midEnergy, highEnergy, fftReady);
+        var haptics = GenerateHaptics(leftRms, rightRms, bands, fftReady);
 
         HapticsDataReady?.Invoke(this, new HapticsDataEventArgs
         {
             LeftMotor = haptics.left,
             RightMotor = haptics.right,
-            LowFreqEnergy = lowEnergy,
-            MidFreqEnergy = midEnergy,
-            HighFreqEnergy = highEnergy,
             RawAmplitude = (leftRms + rightRms) * 0.5f,
+            SubBassEnergy = bands[0],
+            BassEnergy = bands[1],
+            LowFreqEnergy = bands[2],
+            MidFreqEnergy = bands[3],
+            HighFreqEnergy = bands[4],
+            BeatConfidence = _beatConfidence,
             FrequencyDataValid = fftReady
         });
     }
 
-    private void FeedFftBuffer(float[] mono)
+    private void FeedFftBuffer(float[] mono, int length)
     {
-        for (int i = 0; i < mono.Length; i++)
+        int len = Math.Min(length, mono.Length);
+        for (int i = 0; i < len; i++)
         {
             _fftReal[_fftWritePos] = mono[i];
             _fftImag[_fftWritePos] = 0f;
@@ -398,7 +453,7 @@ public sealed class BTHapticsPipeline : IDisposable
         }
     }
 
-    private bool TryComputeFrequencyBands(int sampleRate, ref float low, ref float mid, ref float high)
+    private bool TryComputeFrequencyBands(int sampleRate, float[] bands, ref float spectralFlux)
     {
         float[] re = new float[FftSize];
         float[] im = new float[FftSize];
@@ -415,23 +470,41 @@ public sealed class BTHapticsPipeline : IDisposable
         int binCount = FftSize / 2;
         float binWidth = (float)sampleRate / FftSize;
 
-        float lowSum = 0, midSum = 0, highSum = 0;
-        int lowBins = 0, midBins = 0, highBins = 0;
+        float subBassSum = 0, bassSum = 0, lowMidSum = 0, highMidSum = 0, highSum = 0;
+        int subBassBins = 0, bassBins = 0, lowMidBins = 0, highMidBins = 0, highBins = 0;
 
         for (int i = 1; i < binCount; i++)
         {
             float magnitude = MathF.Sqrt(re[i] * re[i] + im[i] * im[i]) / FftSize;
             float freq = i * binWidth;
 
-            if (freq < 250f)
+            if (i < _prevMagnitudes.Length)
             {
-                lowSum += magnitude;
-                lowBins++;
+                float diff = magnitude - _prevMagnitudes[i];
+                if (diff > 0)
+                    spectralFlux += diff;
+                _prevMagnitudes[i] = magnitude;
+            }
+
+            if (freq < 80f)
+            {
+                subBassSum += magnitude;
+                subBassBins++;
+            }
+            else if (freq < 250f)
+            {
+                bassSum += magnitude;
+                bassBins++;
+            }
+            else if (freq < 500f)
+            {
+                lowMidSum += magnitude;
+                lowMidBins++;
             }
             else if (freq < 2000f)
             {
-                midSum += magnitude;
-                midBins++;
+                highMidSum += magnitude;
+                highMidBins++;
             }
             else if (freq < 8000f)
             {
@@ -440,11 +513,67 @@ public sealed class BTHapticsPipeline : IDisposable
             }
         }
 
-        low = lowBins > 0 ? lowSum / lowBins * _autoGain : 0f;
-        mid = midBins > 0 ? midSum / midBins * _autoGain : 0f;
-        high = highBins > 0 ? highSum / highBins * _autoGain : 0f;
+        bands[0] = subBassBins > 0 ? subBassSum / subBassBins * _autoGain : 0f;
+        bands[1] = bassBins > 0 ? bassSum / bassBins * _autoGain : 0f;
+        bands[2] = lowMidBins > 0 ? lowMidSum / lowMidBins * _autoGain : 0f;
+        bands[3] = highMidBins > 0 ? highMidSum / highMidBins * _autoGain : 0f;
+        bands[4] = highBins > 0 ? highSum / highBins * _autoGain : 0f;
+
+        for (int i = 0; i < 5; i++)
+            bands[i] = MathF.Min(bands[i], 1f);
 
         return true;
+    }
+
+    private void UpdateBandEnvelopes(float[] bands, float durationMs)
+    {
+        float bandAttack = 1f - MathF.Exp(-durationMs / BandAttackTimeMs);
+        float bandRelease = 1f - MathF.Exp(-durationMs / BandReleaseTimeMs);
+
+        for (int i = 0; i < 5; i++)
+        {
+            float alpha = bands[i] > _bandEnvelope[i] ? bandAttack : bandRelease;
+            _bandEnvelope[i] = _bandEnvelope[i] * (1f - alpha) + bands[i] * alpha;
+
+            _bandRms[i] = _bandRms[i] * 0.95f + bands[i] * bands[i] * 0.05f;
+
+            if (bands[i] > _bandPeak[i])
+                _bandPeak[i] = bands[i];
+            else
+                _bandPeak[i] *= PeakDecayRate;
+        }
+    }
+
+    private void DetectOnset(float spectralFlux, float durationMs)
+    {
+        float onsetRelease = 1f - MathF.Exp(-durationMs / 200f);
+        _onsetFlux = _onsetFlux * (1f - OnsetAlpha) + spectralFlux * OnsetAlpha;
+
+        _onsetThreshold = _onsetThreshold * 0.995f + _onsetFlux * 0.005f;
+        float adaptiveThreshold = MathF.Max(_onsetThreshold * 1.5f, 0.02f);
+
+        bool isOnset = spectralFlux > adaptiveThreshold && spectralFlux > 0.01f;
+
+        if (isOnset)
+        {
+            _beatConfidence = MathF.Min(spectralFlux / MathF.Max(_onsetThreshold, 0.01f), 3f);
+            _beatHoldFrames = (int)BeatHoldMax;
+            _beatDecay = 1f;
+        }
+        else
+        {
+            if (_beatHoldFrames > 0)
+            {
+                _beatHoldFrames--;
+            }
+            else
+            {
+                _beatDecay *= onsetRelease;
+                _beatConfidence *= onsetRelease;
+            }
+        }
+
+        _beatConfidence = Math.Min(Math.Max(_beatConfidence, 0f), 3f);
     }
 
     private static void Fft(float[] re, float[] im, int log2N)
@@ -503,62 +632,96 @@ public sealed class BTHapticsPipeline : IDisposable
 
     private (byte left, byte right) GenerateHaptics(
         float leftRms, float rightRms,
-        float lowEnergy, float midEnergy, float highEnergy,
-        bool fftReady)
+        float[] bands, bool fftReady)
     {
+        if (!fftReady)
+            return (ToByte(leftRms), ToByte(rightRms));
+
+        float subBass = bands[0];
+        float bass = bands[1];
+        float lowMid = bands[2];
+        float highMid = bands[3];
+        float high = bands[4];
+        float beat = Math.Min(Math.Max(_beatConfidence, 0f), 1f);
+
         return HapticsSourceMode switch
         {
-            HapticsSourceMode.SoundWaves => GenerateFromSoundWaves(leftRms, rightRms, lowEnergy, midEnergy, fftReady),
-            HapticsSourceMode.SystemCapture => GenerateFromSystemCapture(leftRms, rightRms, lowEnergy, fftReady),
-            HapticsSourceMode.FilePlayback => GenerateFromFilePlayback(leftRms, rightRms, lowEnergy, fftReady),
-            HapticsSourceMode.VDSAudio => GenerateFromVdsAudio(leftRms, rightRms, lowEnergy, fftReady),
+            HapticsSourceMode.SoundWaves => GenerateFromSoundWaves(leftRms, rightRms, subBass, bass, lowMid, highMid, beat),
+            HapticsSourceMode.SystemCapture => GenerateFromSystemCapture(leftRms, rightRms, subBass, bass, lowMid, beat),
+            HapticsSourceMode.FilePlayback => GenerateFromFilePlayback(leftRms, rightRms, subBass, bass, lowMid, beat),
+            HapticsSourceMode.VDSAudio => GenerateFromVdsAudio(leftRms, rightRms, subBass, bass, lowMid, beat),
             _ => (0, 0)
         };
     }
 
     private (byte left, byte right) GenerateFromSoundWaves(
-        float leftRms, float rightRms, float lowEnergy, float midEnergy, bool fftReady)
+        float leftRms, float rightRms,
+        float subBass, float bass, float lowMid, float highMid, float beat)
     {
         float leftScale = (float)(LeftMotorIntensity / 50.0);
         float rightScale = (float)(RightMotorIntensity / 50.0);
 
-        float threshold = 0.02f;
+        float threshold = 0.015f;
 
-        float leftVal = leftRms > threshold ? Math.Clamp(leftRms * leftScale, 0f, 1f) : 0f;
-        float rightVal = rightRms > threshold ? Math.Clamp(rightRms * rightScale, 0f, 1f) : 0f;
+        float leftBassComponent = subBass * 3.0f + bass * 2.0f;
+        float rightBassComponent = bass * 1.5f + lowMid * 1.5f;
 
-        return ((byte)(leftVal * 255), (byte)(rightVal * 255));
-    }
+        float beatBoost = beat * 0.4f;
 
-    private (byte left, byte right) GenerateFromSystemCapture(float leftRms, float rightRms, float lowEnergy, bool fftReady)
-    {
-        float scale = (float)(LeftMotorIntensity / 50.0);
-        float rightScale = RightMotorIntensity > 0 ? (float)(RightMotorIntensity / 50.0) : scale;
-
-        float bassBoost = fftReady ? lowEnergy * 2.5f : 0f;
-        float leftVal = Math.Clamp((leftRms + bassBoost) * scale, 0f, 1f);
-        float rightVal = Math.Clamp((rightRms + bassBoost) * rightScale, 0f, 1f);
+        float leftVal = leftRms > threshold
+            ? Math.Clamp((leftRms * 0.4f + leftBassComponent * 0.5f + beatBoost) * leftScale, 0f, 1f)
+            : 0f;
+        float rightVal = rightRms > threshold
+            ? Math.Clamp((rightRms * 0.3f + rightBassComponent * 0.4f + highMid * 0.3f + beatBoost * 0.6f) * rightScale, 0f, 1f)
+            : 0f;
 
         return (ToByte(leftVal), ToByte(rightVal));
     }
 
-    private (byte left, byte right) GenerateFromFilePlayback(float leftRms, float rightRms, float lowEnergy, bool fftReady)
+    private (byte left, byte right) GenerateFromSystemCapture(
+        float leftRms, float rightRms,
+        float subBass, float bass, float lowMid, float beat)
     {
         float scale = (float)(LeftMotorIntensity / 50.0);
-        float bassBoost = fftReady ? lowEnergy * 2.0f : 0f;
-        float combined = (leftRms + rightRms) * 0.5f + bassBoost;
-        byte level = ToByte(Math.Clamp(combined * scale, 0f, 1f));
-        return (level, level);
+        float rightScale = RightMotorIntensity > 0 ? (float)(RightMotorIntensity / 50.0) : scale;
+
+        float bassBoost = subBass * 3.0f + bass * 2.0f + beat * 0.3f;
+        float midBoost = lowMid * 1.0f;
+
+        float leftVal = Math.Clamp((leftRms + bassBoost) * scale, 0f, 1f);
+        float rightVal = Math.Clamp((rightRms + bassBoost * 0.5f + midBoost) * rightScale, 0f, 1f);
+
+        return (ToByte(leftVal), ToByte(rightVal));
     }
 
-    private (byte left, byte right) GenerateFromVdsAudio(float leftRms, float rightRms, float lowEnergy, bool fftReady)
+    private (byte left, byte right) GenerateFromFilePlayback(
+        float leftRms, float rightRms,
+        float subBass, float bass, float lowMid, float beat)
+    {
+        float scale = (float)(LeftMotorIntensity / 50.0);
+
+        float bassWeight = subBass * 2.5f + bass * 2.0f;
+        float beatWeight = beat * 0.5f;
+        float combined = (leftRms + rightRms) * 0.4f + bassWeight * 0.4f + beatWeight;
+
+        float leftVal = Math.Clamp(combined * scale, 0f, 1f);
+        float rightVal = Math.Clamp((combined * 0.7f + lowMid * 0.3f) * scale, 0f, 1f);
+
+        return (ToByte(leftVal), ToByte(rightVal));
+    }
+
+    private (byte left, byte right) GenerateFromVdsAudio(
+        float leftRms, float rightRms,
+        float subBass, float bass, float lowMid, float beat)
     {
         float leftScale = (float)(LeftMotorIntensity / 50.0);
         float rightScale = (float)(RightMotorIntensity / 50.0);
-        float bassBoost = fftReady ? lowEnergy * 2.0f : 0f;
 
-        float leftVal = Math.Clamp((leftRms + bassBoost) * leftScale, 0f, 1f);
-        float rightVal = Math.Clamp((rightRms + bassBoost) * rightScale, 0f, 1f);
+        float bassComponent = subBass * 2.5f + bass * 2.0f + beat * 0.3f;
+        float midComponent = lowMid * 1.0f;
+
+        float leftVal = Math.Clamp((leftRms * 0.3f + bassComponent * 0.6f) * leftScale, 0f, 1f);
+        float rightVal = Math.Clamp((rightRms * 0.3f + bassComponent * 0.3f + midComponent * 0.4f) * rightScale, 0f, 1f);
 
         return (ToByte(leftVal), ToByte(rightVal));
     }
@@ -579,8 +742,11 @@ public sealed class HapticsDataEventArgs : EventArgs
     public byte LeftMotor { get; init; }
     public byte RightMotor { get; init; }
     public float RawAmplitude { get; init; }
+    public float SubBassEnergy { get; init; }
+    public float BassEnergy { get; init; }
     public float LowFreqEnergy { get; init; }
     public float MidFreqEnergy { get; init; }
     public float HighFreqEnergy { get; init; }
+    public float BeatConfidence { get; init; }
     public bool FrequencyDataValid { get; init; }
 }

@@ -30,19 +30,34 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
     private TriggerMode _selectedRightTriggerMode;
 
     [ObservableProperty]
-    private int _startPosition;
+    private int _leftStartPosition;
 
     [ObservableProperty]
-    private int _endPosition = 255;
+    private int _leftEndPosition = 255;
 
     [ObservableProperty]
-    private int _force = 50;
+    private int _leftForce = 50;
 
     [ObservableProperty]
-    private int _amplitude = 50;
+    private int _leftAmplitude = 50;
 
     [ObservableProperty]
-    private int _frequency = 50;
+    private int _leftFrequency = 50;
+
+    [ObservableProperty]
+    private int _rightStartPosition;
+
+    [ObservableProperty]
+    private int _rightEndPosition = 255;
+
+    [ObservableProperty]
+    private int _rightForce = 50;
+
+    [ObservableProperty]
+    private int _rightAmplitude = 50;
+
+    [ObservableProperty]
+    private int _rightFrequency = 50;
 
     [ObservableProperty]
     private int[] _customBytes = new int[7];
@@ -102,11 +117,16 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
 
         SelectedLeftTriggerMode = preset.LeftTrigger.Mode;
         SelectedRightTriggerMode = preset.RightTrigger.Mode;
-        StartPosition = preset.LeftTrigger.StartPosition;
-        EndPosition = preset.LeftTrigger.EndPosition;
-        Force = preset.RightTrigger.Force;
-        Amplitude = preset.RightTrigger.Amplitude;
-        Frequency = preset.RightTrigger.Frequency;
+        LeftStartPosition = preset.LeftTrigger.StartPosition;
+        LeftEndPosition = preset.LeftTrigger.EndPosition;
+        LeftForce = preset.LeftTrigger.Force;
+        LeftAmplitude = preset.LeftTrigger.Amplitude;
+        LeftFrequency = preset.LeftTrigger.Frequency;
+        RightStartPosition = preset.RightTrigger.StartPosition;
+        RightEndPosition = preset.RightTrigger.EndPosition;
+        RightForce = preset.RightTrigger.Force;
+        RightAmplitude = preset.RightTrigger.Amplitude;
+        RightFrequency = preset.RightTrigger.Frequency;
     }
 
     partial void OnSelectedPresetFromListChanged(TriggerPresetConfig? value)
@@ -161,6 +181,18 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
         RightTriggerConfig = profile.RightTriggerConfig;
         SelectedLeftTriggerMode = LeftTriggerConfig.Mode;
         SelectedRightTriggerMode = RightTriggerConfig.Mode;
+
+        LeftStartPosition = LeftTriggerConfig.StartPosition;
+        LeftEndPosition = LeftTriggerConfig.EndPosition;
+        LeftForce = LeftTriggerConfig.Force;
+        LeftAmplitude = LeftTriggerConfig.Amplitude;
+        LeftFrequency = LeftTriggerConfig.Frequency;
+
+        RightStartPosition = RightTriggerConfig.StartPosition;
+        RightEndPosition = RightTriggerConfig.EndPosition;
+        RightForce = RightTriggerConfig.Force;
+        RightAmplitude = RightTriggerConfig.Amplitude;
+        RightFrequency = RightTriggerConfig.Frequency;
     }
 
     private void UpdateControllerWarning()
@@ -174,11 +206,11 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
         LeftTriggerConfig = new TriggerConfig
         {
             Mode = SelectedLeftTriggerMode,
-            StartPosition = StartPosition,
-            EndPosition = EndPosition,
-            Force = Force,
-            Amplitude = Amplitude,
-            Frequency = Frequency,
+            StartPosition = LeftStartPosition,
+            EndPosition = LeftEndPosition,
+            Force = LeftForce,
+            Amplitude = LeftAmplitude,
+            Frequency = LeftFrequency,
             CustomBytes = CustomBytes
         };
         _main.ControllerService.SetAdaptiveTrigger(Interfaces.TriggerSide.Left, LeftTriggerConfig);
@@ -190,11 +222,11 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
         RightTriggerConfig = new TriggerConfig
         {
             Mode = SelectedRightTriggerMode,
-            StartPosition = StartPosition,
-            EndPosition = EndPosition,
-            Force = Force,
-            Amplitude = Amplitude,
-            Frequency = Frequency,
+            StartPosition = RightStartPosition,
+            EndPosition = RightEndPosition,
+            Force = RightForce,
+            Amplitude = RightAmplitude,
+            Frequency = RightFrequency,
             CustomBytes = CustomBytes
         };
         _main.ControllerService.SetAdaptiveTrigger(Interfaces.TriggerSide.Right, RightTriggerConfig);
@@ -203,14 +235,14 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
     [RelayCommand]
     private void ExportToClipboard()
     {
-        var data = $"Left={SelectedLeftTriggerMode},{StartPosition},{EndPosition},{Force},{Amplitude},{Frequency}|Right={SelectedRightTriggerMode},{StartPosition},{EndPosition},{Force},{Amplitude},{Frequency}";
+        var data = $"Left={SelectedLeftTriggerMode},{LeftStartPosition},{LeftEndPosition},{LeftForce},{LeftAmplitude},{LeftFrequency}|Right={SelectedRightTriggerMode},{RightStartPosition},{RightEndPosition},{RightForce},{RightAmplitude},{RightFrequency}";
         ExportRequested?.Invoke(this, data);
     }
 
     [RelayCommand]
     private void ExportForTextfile()
     {
-        var data = $"Left={SelectedLeftTriggerMode},{StartPosition},{EndPosition},{Force},{Amplitude},{Frequency}|Right={SelectedRightTriggerMode},{StartPosition},{EndPosition},{Force},{Amplitude},{Frequency}";
+        var data = $"Left={SelectedLeftTriggerMode},{LeftStartPosition},{LeftEndPosition},{LeftForce},{LeftAmplitude},{LeftFrequency}|Right={SelectedRightTriggerMode},{RightStartPosition},{RightEndPosition},{RightForce},{RightAmplitude},{RightFrequency}";
         ExportRequested?.Invoke(this, data);
     }
 
@@ -218,7 +250,7 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
     private void ExportForUDP()
     {
         var data = System.Text.Encoding.UTF8.GetBytes(
-            $"Left={SelectedLeftTriggerMode},{StartPosition},{EndPosition},{Force},{Amplitude},{Frequency}|Right={SelectedRightTriggerMode},{StartPosition},{EndPosition},{Force},{Amplitude},{Frequency}");
+            $"Left={SelectedLeftTriggerMode},{LeftStartPosition},{LeftEndPosition},{LeftForce},{LeftAmplitude},{LeftFrequency}|Right={SelectedRightTriggerMode},{RightStartPosition},{RightEndPosition},{RightForce},{RightAmplitude},{RightFrequency}");
         _main.UdpServer.Send(data, "127.0.0.1", 6969);
     }
 
@@ -247,11 +279,20 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
             if (tokens[0] == "Left" && Enum.TryParse<TriggerMode>(values[0], out var leftMode))
             {
                 SelectedLeftTriggerMode = leftMode;
-                StartPosition = int.TryParse(values[1], out var sp) ? sp : StartPosition;
-                EndPosition = int.TryParse(values[2], out var ep) ? ep : EndPosition;
-                Force = int.TryParse(values[3], out var f) ? f : Force;
-                Amplitude = int.TryParse(values[4], out var a) ? a : Amplitude;
-                Frequency = int.TryParse(values[5], out var fr) ? fr : Frequency;
+                LeftStartPosition = int.TryParse(values[1], out var sp) ? sp : LeftStartPosition;
+                LeftEndPosition = int.TryParse(values[2], out var ep) ? ep : LeftEndPosition;
+                LeftForce = int.TryParse(values[3], out var f) ? f : LeftForce;
+                LeftAmplitude = int.TryParse(values[4], out var a) ? a : LeftAmplitude;
+                LeftFrequency = int.TryParse(values[5], out var fr) ? fr : LeftFrequency;
+            }
+            else if (tokens[0] == "Right" && Enum.TryParse<TriggerMode>(values[0], out var rightMode))
+            {
+                SelectedRightTriggerMode = rightMode;
+                RightStartPosition = int.TryParse(values[1], out var sp) ? sp : RightStartPosition;
+                RightEndPosition = int.TryParse(values[2], out var ep) ? ep : RightEndPosition;
+                RightForce = int.TryParse(values[3], out var f) ? f : RightForce;
+                RightAmplitude = int.TryParse(values[4], out var a) ? a : RightAmplitude;
+                RightFrequency = int.TryParse(values[5], out var fr) ? fr : RightFrequency;
             }
         }
     }

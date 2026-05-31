@@ -436,7 +436,8 @@
                     CornerRadius="12" Padding="16">
                 <ScrollViewer Style="{StaticResource DSXScrollViewer}"
                               VerticalScrollBarVisibility="Auto">
-                    <ItemsControl x:Name="NotificationList">
+                    <ItemsControl x:Name="NotificationList"
+                                  ItemsSource="{Binding Notifications}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="#141414"

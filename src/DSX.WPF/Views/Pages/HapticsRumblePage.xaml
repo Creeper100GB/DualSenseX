@@ -191,39 +191,20 @@
                                FontWeight="SemiBold"
                                Margin="0,0,0,12" />
 
-                    <UniformGrid Columns="4" Margin="0,0,0,8">
+                     <UniformGrid Columns="4" Margin="0,0,0,8">
                         <StackPanel Margin="0,0,12,0">
-                            <TextBlock Text="Left Motor"
+                            <TextBlock Text="Speaker"
                                        Foreground="{StaticResource TextSecondary}"
                                        FontSize="11"
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,6" />
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding LeftMotorVolume}"
+                                    Value="{Binding SpeakerVolume}"
                                     Minimum="0" Maximum="100"
                                     Orientation="Vertical"
                                     Height="100"
                                     HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding LeftMotorVolume, StringFormat='{}{0:F0}'}"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       FontSize="11"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0" />
-                        </StackPanel>
-
-                        <StackPanel Margin="12,0,12,0">
-                            <TextBlock Text="Right Motor"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       FontSize="11"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,0,0,6" />
-                            <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding RightMotorVolume}"
-                                    Minimum="0" Maximum="100"
-                                    Orientation="Vertical"
-                                    Height="100"
-                                    HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding RightMotorVolume, StringFormat='{}{0:F0}'}"
+                            <TextBlock Text="{Binding SpeakerVolume, StringFormat='{}{0:F0}'}"
                                        Foreground="{StaticResource TextSecondary}"
                                        FontSize="11"
                                        HorizontalAlignment="Center"
@@ -249,19 +230,38 @@
                                        Margin="0,6,0,0" />
                         </StackPanel>
 
-                        <StackPanel Margin="12,0,0,0">
-                            <TextBlock Text="Speaker"
+                        <StackPanel Margin="12,0,12,0">
+                            <TextBlock Text="L Motor"
                                        Foreground="{StaticResource TextSecondary}"
                                        FontSize="11"
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,6" />
                             <Slider Style="{StaticResource DSXSlider}"
-                                    Value="{Binding SpeakerVolume}"
+                                    Value="{Binding LeftMotorVolume}"
                                     Minimum="0" Maximum="100"
                                     Orientation="Vertical"
                                     Height="100"
                                     HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding SpeakerVolume, StringFormat='{}{0:F0}'}"
+                            <TextBlock Text="{Binding LeftMotorVolume, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Margin="12,0,0,0">
+                            <TextBlock Text="R Motor"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6" />
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding RightMotorVolume}"
+                                    Minimum="0" Maximum="100"
+                                    Orientation="Vertical"
+                                    Height="100"
+                                    HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding RightMotorVolume, StringFormat='{}{0:F0}'}"
                                        Foreground="{StaticResource TextSecondary}"
                                        FontSize="11"
                                        HorizontalAlignment="Center"
@@ -352,11 +352,11 @@
                                        FontSize="13"
                                        Margin="0,0,0,6" />
                             <ComboBox Style="{StaticResource DSXComboBox}"
-                                      SelectedItem="{Binding AudioSourceMode}">
-                                <ComboBoxItem Content="Sound Capture" />
-                                <ComboBoxItem Content="File Playback" />
-                                <ComboBoxItem Content="vDS Audio" />
-                                <ComboBoxItem Content="Mix and Match" />
+                                      SelectedItem="{Binding SelectedAudioSourceText}">
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Sound Capture</system:String>
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">File Playback</system:String>
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">vDS Audio</system:String>
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Mix and Match</system:String>
                             </ComboBox>
                         </StackPanel>
 
@@ -366,11 +366,11 @@
                                        FontSize="13"
                                        Margin="0,0,0,6" />
                             <ComboBox Style="{StaticResource DSXComboBox}"
-                                      SelectedItem="{Binding HapticsSourceMode}">
-                                <ComboBoxItem Content="Sound Waves" />
-                                <ComboBoxItem Content="System Capture" />
-                                <ComboBoxItem Content="File Playback" />
-                                <ComboBoxItem Content="vDS Audio" />
+                                      SelectedItem="{Binding SelectedHapticsSourceText}">
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Sound Waves</system:String>
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">System Capture</system:String>
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">File Playback</system:String>
+                                <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">vDS Audio</system:String>
                             </ComboBox>
                         </StackPanel>
                     </Grid>
@@ -495,6 +495,131 @@
                                     Margin="8,0,0,0"
                                     Padding="16,6" />
                         </Grid>
+                    </StackPanel>
+
+                    <!-- Live Audio Analysis -->
+                    <StackPanel Margin="0,20,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="4" Height="16"
+                                    Background="{StaticResource NeonBlue}"
+                                    CornerRadius="2"
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Text="Live Audio Analysis"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       VerticalAlignment="Center" />
+                            <Ellipse Width="8" Height="8"
+                                     Margin="10,0,0,0"
+                                     VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{StaticResource SuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBTHapticsRunning}" Value="False">
+                                                <Setter Property="Fill" Value="{StaticResource TextMuted}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                        </StackPanel>
+
+                        <UniformGrid Columns="5" Margin="0,0,0,8">
+                            <StackPanel Margin="0,0,8,0">
+                                <TextBlock Text="Sub-Bass"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <ProgressBar Value="{Binding LastSubBassEnergy}"
+                                             Minimum="0" Maximum="1"
+                                             Style="{StaticResource DSXProgressBar}"
+                                             Height="8"
+                                             Orientation="Vertical"
+                                             HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding LastSubBassEnergy, StringFormat='{}{0:P0}'}"
+                                           Foreground="{StaticResource TextMuted}"
+                                           FontSize="9"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+
+                            <StackPanel Margin="4,0,4,0">
+                                <TextBlock Text="Bass"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <ProgressBar Value="{Binding LastBassEnergy}"
+                                             Minimum="0" Maximum="1"
+                                             Style="{StaticResource DSXProgressBar}"
+                                             Height="8"
+                                             Orientation="Vertical"
+                                             HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding LastBassEnergy, StringFormat='{}{0:P0}'}"
+                                           Foreground="{StaticResource TextMuted}"
+                                           FontSize="9"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+
+                            <StackPanel Margin="4,0,4,0">
+                                <TextBlock Text="Mid"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <ProgressBar Value="{Binding LastMidEnergy}"
+                                             Minimum="0" Maximum="1"
+                                             Style="{StaticResource DSXProgressBar}"
+                                             Height="8"
+                                             Orientation="Vertical"
+                                             HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding LastMidEnergy, StringFormat='{}{0:P0}'}"
+                                           Foreground="{StaticResource TextMuted}"
+                                           FontSize="9"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+
+                            <StackPanel Margin="4,0,4,0">
+                                <TextBlock Text="Beat"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <ProgressBar Value="{Binding LastBeatConfidence}"
+                                             Minimum="0" Maximum="1"
+                                             Style="{StaticResource DSXProgressBar}"
+                                             Height="8"
+                                             Orientation="Vertical"
+                                             HorizontalAlignment="Center" />
+                                <TextBlock Text="{Binding LastBeatConfidence, StringFormat='{}{0:F2}'}"
+                                           Foreground="{StaticResource TextMuted}"
+                                           FontSize="9"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,4,0,0" />
+                            </StackPanel>
+
+                            <StackPanel Margin="8,0,0,0">
+                                <TextBlock Text="Motors"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding LastLeftMotor, StringFormat='L{0}'}"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               FontSize="10"
+                                               Margin="0,0,6,0" />
+                                    <TextBlock Text="{Binding LastRightMotor, StringFormat='R{0}'}"
+                                               Foreground="{StaticResource NeonPurple}"
+                                               FontSize="10" />
+                                </StackPanel>
+                            </StackPanel>
+                        </UniformGrid>
                     </StackPanel>
                 </StackPanel>
             </Border>

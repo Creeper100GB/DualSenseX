@@ -56,6 +56,36 @@ public partial class HapticsRumbleViewModel : ObservableObject
     private HapticsSourceMode _hapticsSourceMode = HapticsSourceMode.SoundWaves;
 
     [ObservableProperty]
+    private string _selectedAudioSourceText = "Sound Capture";
+
+    [ObservableProperty]
+    private string _selectedHapticsSourceText = "Sound Waves";
+
+    partial void OnSelectedAudioSourceTextChanged(string value)
+    {
+        AudioSourceMode = value switch
+        {
+            "Sound Capture" => AudioSourceMode.SoundCapture,
+            "File Playback" => AudioSourceMode.FilePlayback,
+            "vDS Audio" => AudioSourceMode.VDSAudio,
+            "Mix and Match" => AudioSourceMode.MixAndMatch,
+            _ => AudioSourceMode.SoundCapture
+        };
+    }
+
+    partial void OnSelectedHapticsSourceTextChanged(string value)
+    {
+        HapticsSourceMode = value switch
+        {
+            "Sound Waves" => HapticsSourceMode.SoundWaves,
+            "System Capture" => HapticsSourceMode.SystemCapture,
+            "File Playback" => HapticsSourceMode.FilePlayback,
+            "vDS Audio" => HapticsSourceMode.VDSAudio,
+            _ => HapticsSourceMode.SoundWaves
+        };
+    }
+
+    [ObservableProperty]
     private double _bTLeftMotorIntensity = 50;
 
     [ObservableProperty]
@@ -76,24 +106,46 @@ public partial class HapticsRumbleViewModel : ObservableObject
     [ObservableProperty]
     private string _bTHapticsStatus = "Stopped";
 
+    [ObservableProperty]
+    private float _lastSubBassEnergy;
+
+    [ObservableProperty]
+    private float _lastBassEnergy;
+
+    [ObservableProperty]
+    private float _lastMidEnergy;
+
+    [ObservableProperty]
+    private float _lastBeatConfidence;
+
+    [ObservableProperty]
+    private byte _lastLeftMotor;
+
+    [ObservableProperty]
+    private byte _lastRightMotor;
+
     partial void OnLeftMotorVolumeChanged(double value)
     {
-        _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0));
+        try { _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0)); }
+        catch { }
     }
 
     partial void OnRightMotorVolumeChanged(double value)
     {
-        _main.ControllerService.SetHeadphoneVolume((byte)(value * 0x7F / 100.0));
+        try { _main.ControllerService.SetHeadphoneVolume((byte)(value * 0x7F / 100.0)); }
+        catch { }
     }
 
     partial void OnHeadsetVolumeChanged(double value)
     {
-        _main.ControllerService.SetHeadphoneVolume((byte)(value * 0x7F / 100.0));
+        try { _main.ControllerService.SetHeadphoneVolume((byte)(value * 0x7F / 100.0)); }
+        catch { }
     }
 
     partial void OnSpeakerVolumeChanged(double value)
     {
-        _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0));
+        try { _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0)); }
+        catch { }
     }
 
     public event EventHandler? BrowseAudioFileDialogRequested;
@@ -117,8 +169,23 @@ public partial class HapticsRumbleViewModel : ObservableObject
         _main.AudioService.BTHapticsError += OnBTHapticsError;
     }
 
+    private int _uiUpdateCounter;
+
     private void OnBTHapticsData(object? sender, Services.Audio.HapticsDataEventArgs e)
     {
+        int count = System.Threading.Interlocked.Increment(ref _uiUpdateCounter);
+        if (count % 10 != 0)
+            return;
+
+        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            LastLeftMotor = e.LeftMotor;
+            LastRightMotor = e.RightMotor;
+            LastSubBassEnergy = e.SubBassEnergy;
+            LastBassEnergy = e.BassEnergy;
+            LastMidEnergy = e.MidFreqEnergy;
+            LastBeatConfidence = e.BeatConfidence;
+        });
     }
 
     private void OnBTHapticsError(object? sender, string error)
@@ -156,7 +223,7 @@ public partial class HapticsRumbleViewModel : ObservableObject
         if (controller != null)
         {
             BTRSSI = controller.BTRSSI;
-            ShowBTHaptics = _main.IsDSXPlusOwner && controller.Connection == ConnectionType.Bluetooth;
+            ShowBTHaptics = _main.IsDSXPlusOwner;
         }
     }
 

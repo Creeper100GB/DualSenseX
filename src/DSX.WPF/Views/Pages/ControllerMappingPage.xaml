@@ -11,6 +11,7 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        <converters:EnumBoolConverter x:Key="EnumBoolConverter" />
     </UserControl.Resources>
 
     <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
@@ -35,33 +36,33 @@
 
                 <ComboBox Grid.Column="1"
                           Style="{StaticResource DSXComboBox}"
+                          ItemsSource="{Binding VirtualDeviceTypes}"
+                          SelectedIndex="{Binding VirtualDeviceTypeIndex}"
                           Width="150"
-                          Margin="0,0,8,0"
-                          SelectedIndex="0">
-                    <ComboBoxItem Content="Xbox 360" />
-                    <ComboBoxItem Content="DualShock 4" />
-                    <ComboBoxItem Content="DualSense" />
-                </ComboBox>
+                          Margin="0,0,8,0" />
 
                 <StackPanel Grid.Column="3" Orientation="Horizontal">
                     <RadioButton Content="Xbox 360"
                                  GroupName="Emulation"
-                                 IsChecked="True"
+                                 IsChecked="{Binding EmulationType, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Xbox360}"
                                  Foreground="{StaticResource TextSecondary}"
                                  Margin="0,0,12,0"
                                  VerticalAlignment="Center" />
                     <RadioButton Content="DualShock 4"
                                  GroupName="Emulation"
+                                 IsChecked="{Binding EmulationType, Converter={StaticResource EnumBoolConverter}, ConverterParameter=DualShock4}"
                                  Foreground="{StaticResource TextSecondary}"
                                  Margin="0,0,12,0"
                                  VerticalAlignment="Center" />
                     <RadioButton Content="DualSense"
                                  GroupName="Emulation"
+                                 IsChecked="{Binding EmulationType, Converter={StaticResource EnumBoolConverter}, ConverterParameter=DualSense}"
                                  Foreground="{StaticResource TextSecondary}"
                                  Margin="0,0,12,0"
                                  VerticalAlignment="Center" />
                     <RadioButton Content="None"
                                  GroupName="Emulation"
+                                 IsChecked="{Binding EmulationType, Converter={StaticResource EnumBoolConverter}, ConverterParameter=None}"
                                  Foreground="{StaticResource TextSecondary}"
                                  VerticalAlignment="Center" />
                 </StackPanel>
@@ -77,16 +78,20 @@
 
                     <controls:ControllerViewControl x:Name="ControllerView"
                                                     Grid.Row="0"
-                                                    Width="440" Height="200"
+                                                    Width="440" Height="280"
                                                     HorizontalAlignment="Center"
                                                     Margin="0,0,0,12" />
 
-                    <Button Grid.Row="1"
-                            Style="{StaticResource SecondaryButton}"
-                            Command="{Binding ClearAllButtonSelectionsCommand}"
-                            Content="Clear Selection"
-                            HorizontalAlignment="Center"
-                            Padding="20,6" />
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ClearAllButtonSelectionsCommand}"
+                                Content="Clear Selection"
+                                Padding="20,6"
+                                Margin="0,0,8,0" />
+                        <TextBlock Text="{Binding SelectedButtonName, StringFormat='Selected: {0}'}"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -104,11 +109,17 @@
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource TextPrimary}"
                                                    VerticalAlignment="Center" />
-                                        <Button Style="{StaticResource PrimaryButton}"
-                                                Command="{Binding CreateActionCommand}"
-                                                Content="Add Action"
-                                                HorizontalAlignment="Right"
-                                                Padding="16,6" />
+                                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                            <Button Style="{StaticResource PrimaryButton}"
+                                                    Command="{Binding CreateActionCommand}"
+                                                    Content="Add Action"
+                                                    Padding="16,6"
+                                                    Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource DangerButton}"
+                                                    Command="{Binding DeleteActionCommand}"
+                                                    Content="Delete"
+                                                    Padding="16,6" />
+                                        </StackPanel>
                                     </Grid>
 
                                     <ListView x:Name="ActionListView"
@@ -141,17 +152,6 @@
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding ActionDescription}"
                                                                        Foreground="{StaticResource TextPrimary}" />
-                                                        </DataTemplate>
-                                                    </GridViewColumn.CellTemplate>
-                                                </GridViewColumn>
-                                                <GridViewColumn Width="80">
-                                                    <GridViewColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <Button Style="{StaticResource DangerButton}"
-                                                                    Command="{Binding DataContext.DeleteActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                    Content="Delete"
-                                                                    FontSize="{StaticResource SmallFontSize}"
-                                                                    Padding="8,4" />
                                                         </DataTemplate>
                                                     </GridViewColumn.CellTemplate>
                                                 </GridViewColumn>
@@ -206,15 +206,17 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                         <RadioButton Content="WASD"
                                                      GroupName="StickKbMode"
-                                                     IsChecked="True"
+                                                     IsChecked="{Binding StickKbMode, Converter={StaticResource EnumBoolConverter}, ConverterParameter=WASD}"
                                                      Foreground="{StaticResource TextSecondary}"
                                                      Margin="0,0,16,0" />
                                         <RadioButton Content="ZQSD"
                                                      GroupName="StickKbMode"
+                                                     IsChecked="{Binding StickKbMode, Converter={StaticResource EnumBoolConverter}, ConverterParameter=ZQSD}"
                                                      Foreground="{StaticResource TextSecondary}"
                                                      Margin="0,0,16,0" />
                                         <RadioButton Content="Custom"
                                                      GroupName="StickKbMode"
+                                                     IsChecked="{Binding StickKbMode, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Custom}"
                                                      Foreground="{StaticResource TextSecondary}" />
                                     </StackPanel>
 
@@ -497,7 +499,7 @@
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0" />
                                             <controls:ToggleSwitch IsChecked="{Binding DeadzoneConfig.ApplySameTriggerSettings}"
-                                                                   Width="44" Height="24" />
+                                                                    Width="44" Height="24" />
                                         </StackPanel>
                                     </Grid>
 
@@ -547,19 +549,22 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                         <RadioButton Content="Linear"
                                                      GroupName="CurveType"
-                                                     IsChecked="True"
+                                                     IsChecked="{Binding StickCurve, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Linear}"
                                                      Foreground="{StaticResource TextSecondary}"
                                                      Margin="0,0,16,0" />
                                         <RadioButton Content="Aggressive"
                                                      GroupName="CurveType"
+                                                     IsChecked="{Binding StickCurve, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Aggressive}"
                                                      Foreground="{StaticResource TextSecondary}"
                                                      Margin="0,0,16,0" />
                                         <RadioButton Content="Relaxed"
                                                      GroupName="CurveType"
+                                                     IsChecked="{Binding StickCurve, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Relaxed}"
                                                      Foreground="{StaticResource TextSecondary}"
                                                      Margin="0,0,16,0" />
                                         <RadioButton Content="Custom"
                                                      GroupName="CurveType"
+                                                     IsChecked="{Binding StickCurve, Converter={StaticResource EnumBoolConverter}, ConverterParameter=Custom}"
                                                      Foreground="{StaticResource TextSecondary}" />
                                     </StackPanel>
                                 </StackPanel>
@@ -590,10 +595,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Slider Style="{StaticResource DSXSlider}"
-                                                Value="{Binding LargeMotorIntensity}"
+                                                Value="{Binding TimeVibrationLeftMotor}"
                                                 Minimum="0" Maximum="100" />
                                         <TextBlock Grid.Column="1"
-                                                   Text="{Binding LargeMotorIntensity, StringFormat='{}{0:F0}'}"
+                                                   Text="{Binding TimeVibrationLeftMotor, StringFormat='{}{0:F0}'}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    Width="30" TextAlignment="Right"
                                                    VerticalAlignment="Center"
@@ -609,10 +614,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Slider Style="{StaticResource DSXSlider}"
-                                                Value="{Binding SmallMotorIntensity}"
+                                                Value="{Binding TimeVibrationRightMotor}"
                                                 Minimum="0" Maximum="100" />
                                         <TextBlock Grid.Column="1"
-                                                   Text="{Binding SmallMotorIntensity, StringFormat='{}{0:F0}'}"
+                                                   Text="{Binding TimeVibrationRightMotor, StringFormat='{}{0:F0}'}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    Width="30" TextAlignment="Right"
                                                    VerticalAlignment="Center"
@@ -644,9 +649,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Slider Style="{StaticResource DSXSlider}"
+                                                Value="{Binding IntervalVibrationLeftMotor}"
                                                 Minimum="0" Maximum="100" />
                                         <TextBlock Grid.Column="1"
-                                                   Text="0"
+                                                   Text="{Binding IntervalVibrationLeftMotor, StringFormat='{}{0:F0}'}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    Width="30" TextAlignment="Right"
                                                    VerticalAlignment="Center"
@@ -662,9 +668,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Slider Style="{StaticResource DSXSlider}"
+                                                Value="{Binding IntervalVibrationRightMotor}"
                                                 Minimum="0" Maximum="100" />
                                         <TextBlock Grid.Column="1"
-                                                   Text="0"
+                                                   Text="{Binding IntervalVibrationRightMotor, StringFormat='{}{0:F0}'}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    Width="30" TextAlignment="Right"
                                                    VerticalAlignment="Center"
@@ -680,9 +687,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Slider Style="{StaticResource DSXSlider}"
+                                                Value="{Binding IntervalVibrationInterval}"
                                                 Minimum="10" Maximum="1000" />
                                         <TextBlock Grid.Column="1"
-                                                   Text="100"
+                                                   Text="{Binding IntervalVibrationInterval, StringFormat='{}{0:F0}'}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    Width="40" TextAlignment="Right"
                                                    VerticalAlignment="Center"
@@ -698,9 +706,10 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Slider Style="{StaticResource DSXSlider}"
-                                                Minimum="1" Maximum="1000" />
+                                                Value="{Binding IntervalVibrationDuration}"
+                                                Minimum="1" Maximum="60" />
                                         <TextBlock Grid.Column="1"
-                                                   Text="1"
+                                                   Text="{Binding IntervalVibrationDuration, StringFormat='{}{0:F0}'}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    Width="40" TextAlignment="Right"
                                                    VerticalAlignment="Center"

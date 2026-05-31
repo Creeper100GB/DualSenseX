@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Text.Json;
 using DSX.Core.Constants;
 using DSX.Core.Interfaces;
@@ -8,7 +8,7 @@ namespace DSX.Core.Services.HidHide;
 
 public sealed class HidHideService : IHidHideService
 {
-    private readonly ConcurrentBag<string> _hiddenDevices = [];
+    private readonly HashSet<string> _hiddenDevices = new();
     private readonly object _registryLock = new();
 
     public bool IsDriverInstalled
@@ -94,10 +94,10 @@ public sealed class HidHideService : IHidHideService
         if (!IsDriverInstalled)
             return;
 
-        _hiddenDevices.Add(deviceId);
-
         lock (_registryLock)
         {
+            _hiddenDevices.Add(deviceId);
+
             try
             {
                 using var key = Registry.LocalMachine.CreateSubKey(AppConstants.HidHideConfigPath);
@@ -111,10 +111,10 @@ public sealed class HidHideService : IHidHideService
 
     public void UnhideController(string deviceId)
     {
-        _ = _hiddenDevices.TryTake(out _);
-
         lock (_registryLock)
         {
+            _hiddenDevices.Remove(deviceId);
+
             try
             {
                 using var key = Registry.LocalMachine.OpenSubKey(AppConstants.HidHideConfigPath, true);
@@ -158,10 +158,13 @@ public sealed class HidHideService : IHidHideService
 
     public void RefreshDriverStatus()
     {
-        var hidden = GetHiddenDevicesFromRegistry();
-        _hiddenDevices.Clear();
-        foreach (var d in hidden)
-            _hiddenDevices.Add(d);
+        lock (_registryLock)
+        {
+            var hidden = GetHiddenDevicesFromRegistry();
+            _hiddenDevices.Clear();
+            foreach (var d in hidden)
+                _hiddenDevices.Add(d);
+        }
     }
 
     private static List<string> GetHiddenDevicesFromRegistry()

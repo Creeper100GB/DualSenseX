@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:DSX.WPF"
              Startup="OnStartup"
-             Exit="OnExit"
-             DispatcherUnhandledException="OnDispatcherUnhandledException">
+             Exit="OnExit">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

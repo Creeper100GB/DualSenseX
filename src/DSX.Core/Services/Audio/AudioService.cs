@@ -21,6 +21,8 @@ public sealed class AudioService : IAudioService, IDisposable
     private readonly object _btHapticsLock = new();
     private BTHapticsPipeline? _btHaptics;
 
+    private int _hapticsLogCounter;
+
     public event EventHandler<float[]>? AudioDataCaptured;
     public event EventHandler<HapticsDataEventArgs>? BTHapticsDataReady;
     public event EventHandler<string>? BTHapticsError;
@@ -84,7 +86,18 @@ public sealed class AudioService : IAudioService, IDisposable
             _btHaptics.HapticsDataReady += OnBTHapticsDataReady;
             _btHaptics.ErrorOccurred += OnBTHapticsError;
 
-            _btHaptics.Start();
+            try
+            {
+                _btHaptics.Start();
+            }
+            catch (Exception ex)
+            {
+                BTHapticsError?.Invoke(this, $"Start failed: {ex.Message}");
+                _btHaptics.HapticsDataReady -= OnBTHapticsDataReady;
+                _btHaptics.ErrorOccurred -= OnBTHapticsError;
+                _btHaptics.Dispose();
+                _btHaptics = null;
+            }
         }
     }
 
@@ -96,9 +109,22 @@ public sealed class AudioService : IAudioService, IDisposable
 
             _btHaptics.HapticsDataReady -= OnBTHapticsDataReady;
             _btHaptics.ErrorOccurred -= OnBTHapticsError;
+
+            try
+            {
+                _btHaptics.Stop();
+            }
+            catch { }
+
             _btHaptics.Dispose();
             _btHaptics = null;
         }
+
+        try
+        {
+            _controllerService?.SetRumble(0, 0);
+        }
+        catch { }
     }
 
     public void ConfigureBTHaptics(
@@ -152,30 +178,54 @@ public sealed class AudioService : IAudioService, IDisposable
         }
     }
 
-    private int _hapticsLogCounter;
-
     private void OnBTHapticsDataReady(object? sender, HapticsDataEventArgs e)
     {
         BTHapticsDataReady?.Invoke(this, e);
 
-        double leftPct = e.LeftMotor / 255.0 * 100.0;
-        double rightPct = e.RightMotor / 255.0 * 100.0;
-
         int count = System.Threading.Interlocked.Increment(ref _hapticsLogCounter);
         if (count % 200 == 0)
         {
+            double leftPct = e.LeftMotor / 255.0 * 100.0;
+            double rightPct = e.RightMotor / 255.0 * 100.0;
+
             DSX.Core.Services.Controller.ControllerService.LogAction?
-                .Invoke($"[Haptics] L{e.LeftMotor}/R{e.RightMotor} ({leftPct:F0}/{rightPct:F0}%) amp={e.RawAmplitude:F3}");
+                .Invoke($"[Haptics] L{e.LeftMotor}/R{e.RightMotor} ({leftPct:F0}/{rightPct:F0}%) " +
+                        $"sub={e.SubBassEnergy:F3} bass={e.BassEnergy:F3} beat={e.BeatConfidence:F2}");
         }
 
-        if (leftPct > 0.5 || rightPct > 0.5)
-            _controllerService?.SetRumble(leftPct, rightPct);
+        if (e.LeftMotor > 1 || e.RightMotor > 1)
+        {
+            double leftPct = e.LeftMotor / 255.0 * 100.0;
+            double rightPct = e.RightMotor / 255.0 * 100.0;
+
+            try
+            {
+                _controllerService?.SetRumble(leftPct, rightPct);
+            }
+            catch (Exception ex)
+            {
+                if (count % 500 == 0)
+                {
+                    DSX.Core.Services.Controller.ControllerService.LogAction?
+                        .Invoke($"[Haptics] SetRumble error: {ex.Message}");
+                }
+            }
+        }
         else
-            _controllerService?.SetRumble(0, 0);
+        {
+            try
+            {
+                _controllerService?.SetRumble(0, 0);
+            }
+            catch { }
+        }
     }
 
     private void OnBTHapticsError(object? sender, string error)
     {
+        var log = DSX.Core.Services.Controller.ControllerService.LogAction;
+        if (log != null)
+            log($"[Haptics] Error: {error}");
         BTHapticsError?.Invoke(this, error);
     }
 
@@ -279,6 +329,7 @@ public sealed class AudioService : IAudioService, IDisposable
             {
                 _btHaptics.HapticsDataReady -= OnBTHapticsDataReady;
                 _btHaptics.ErrorOccurred -= OnBTHapticsError;
+                try { _btHaptics.Stop(); } catch { }
                 _btHaptics.Dispose();
                 _btHaptics = null;
             }
