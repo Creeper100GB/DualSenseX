@@ -214,3 +214,26 @@ public enum NavigationPage
     Settings,
     HelpCenter
 }
+
+public enum TriggerPreset
+{
+    Custom,
+    FPS_Shooter,
+    Racing,
+    RPG,
+    Platformer,
+    Sports,
+    Fighting,
+    Stealth,
+    Bow_Hunting,
+    Racing_Wheel,
+    FlightStick,
+    Gun_Trigger,
+    Hair_Trigger,
+    Heavy_Resistance,
+    Soft_Resistance,
+    Machine_Gun,
+    Sniper,
+    Shotgun,
+    Pistol
+}

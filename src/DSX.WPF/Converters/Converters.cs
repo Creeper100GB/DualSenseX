@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using DSX.Core.Enums;
 
 namespace DSX.WPF.Converters;
@@ -282,7 +284,7 @@ public class DoubleToPercentageConverter : IValueConverter
 
 public class RgbToBrushConverter : IMultiValueConverter
 {
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    public object? Convert(object?[] values, Type targetType, object? parameter, CultureInfo culture)
     {
         byte r = 0, g = 0, b = 0;
         if (values.Length > 0 && values[0] is byte rv) r = rv;
@@ -294,7 +296,36 @@ public class RgbToBrushConverter : IMultiValueConverter
         return new SolidColorBrush(Color.FromRgb(r, g, b));
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    public object?[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class LanguageToFlagConverter : IMultiValueConverter
+{
+    private static readonly Dictionary<string, string> LanguageToFlagFile = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["ar-SA"] = "ar", ["bg-BG"] = "bg", ["da-DK"] = "da", ["de-DE"] = "de",
+        ["el-GR"] = "en-GB", ["en-GB"] = "en-GB", ["en-US"] = "en-US-Flag",
+        ["es-419"] = "es", ["fi-FI"] = "fi", ["fr-FR"] = "fr", ["hr-HR"] = "hr",
+        ["hu-HU"] = "hu", ["id-ID"] = "id", ["it-IT"] = "it", ["ja-JP"] = "en-GB",
+        ["ko-KR"] = "ko", ["nb-NO"] = "nb", ["nl-NL"] = "nl", ["pl-PL"] = "pl",
+        ["pt-BR"] = "pt-BR", ["pt-PT"] = "en-GB", ["ro-RO"] = "ro", ["ru-RU"] = "ru",
+        ["sv-SE"] = "sv", ["th-TH"] = "th", ["tr-TR"] = "tr", ["uk-UA"] = "uk",
+        ["vi-VN"] = "en-GB", ["zh-CN"] = "zh-Hans", ["zh-TW"] = "en-GB"
+    };
+
+    public object? Convert(object?[] values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values.Length > 0 && values[0] is string lang && LanguageToFlagFile.TryGetValue(lang, out var flag))
+        {
+            return new BitmapImage(new Uri($"pack://application:,,,/DSX;component/Resources/Images/Flags/{flag}.png"));
+        }
+        return null;
+    }
+
+    public object?[] ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

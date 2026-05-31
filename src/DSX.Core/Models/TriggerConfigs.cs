@@ -14,6 +14,15 @@ public class TriggerConfig
     public int[] MultiplePositionForces { get; set; } = new int[10];
 }
 
+public class TriggerPresetConfig
+{
+    public TriggerPreset Preset { get; init; }
+    public string DisplayName { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public TriggerConfig LeftTrigger { get; init; } = new();
+    public TriggerConfig RightTrigger { get; init; } = new();
+}
+
 public class TouchpadLEDConfig
 {
     public LEDMode Mode { get; set; } = LEDMode.Off;

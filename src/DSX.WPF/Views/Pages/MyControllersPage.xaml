@@ -29,137 +29,156 @@
 
                     <Grid Margin="0,0,0,16">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,8">
-                            <TextBlock Text="Controller Name"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <TextBlock Text="{Binding ControllerName}"
-                                       Foreground="{StaticResource TextPrimary}"
-                                       FontWeight="SemiBold"
-                                       FontSize="{StaticResource MediumFontSize}" />
-                        </StackPanel>
+                        <Border Grid.Column="0" Width="120" Height="120"
+                                Background="#1500D4AA"
+                                CornerRadius="12"
+                                Margin="0,0,20,0"
+                                VerticalAlignment="Center">
+                            <Image Source="pack://application:,,,/DSX;component/Resources/Images/controller_dualsense.png"
+                                   Width="100" Height="100"
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                        </Border>
 
-                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,8">
-                            <TextBlock Text="Connection Type"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock FontFamily="{StaticResource IconFontFamily}"
-                                           FontSize="14"
-                                           Foreground="{StaticResource AccentBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,6,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Text" Value="&#xE85E;" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ConnectionType}" Value="Bluetooth">
-                                                    <Setter Property="Text" Value="&#xE702;" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="{Binding ConnectionIcon}"
+                        <Grid Grid.Column="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,8">
+                                <TextBlock Text="Controller Name"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <TextBlock Text="{Binding ControllerName}"
                                            Foreground="{StaticResource TextPrimary}"
-                                           FontWeight="SemiBold" />
+                                           FontWeight="SemiBold"
+                                           FontSize="{StaticResource MediumFontSize}" />
                             </StackPanel>
-                        </StackPanel>
 
-                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,8">
-                            <TextBlock Text="Battery"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Foreground="{StaticResource TextPrimary}"
-                                           FontWeight="SemiBold">
-                                    <TextBlock.Text>
-                                        <Binding Path="BatteryPercent" StringFormat="{}{0:F0}%" />
-                                    </TextBlock.Text>
-                                </TextBlock>
-                                <TextBlock Text=" (Charging)"
-                                           Foreground="{StaticResource AccentBrush}"
-                                           FontSize="{StaticResource SmallFontSize}"
-                                           Visibility="{Binding IsCharging, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,8">
+                                <TextBlock Text="Connection Type"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="{StaticResource IconFontFamily}"
+                                               FontSize="14"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,6,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="&#xE85E;" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ConnectionType}" Value="Bluetooth">
+                                                        <Setter Property="Text" Value="&#xE702;" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ConnectionIcon}"
+                                               Foreground="{StaticResource TextPrimary}"
+                                               FontWeight="SemiBold" />
+                                </StackPanel>
                             </StackPanel>
-                            <ProgressBar Value="{Binding BatteryPercent}"
-                                         Style="{StaticResource DSXProgressBar}"
-                                         Height="6"
-                                         Margin="0,4,0,0">
-                                <ProgressBar.Foreground>
-                                    <Binding Path="BatteryPercent">
-                                        <Binding.Converter>
-                                            <converters:BatteryToColorConverter />
-                                        </Binding.Converter>
-                                    </Binding>
-                                </ProgressBar.Foreground>
-                            </ProgressBar>
-                        </StackPanel>
 
-                        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,8">
-                            <TextBlock Text="Firmware Version"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <TextBlock Text="{Binding FirmwareVersion}"
-                                       Foreground="{StaticResource TextPrimary}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,12,8">
-                            <TextBlock Text="Build Date"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <TextBlock Text="{Binding BuildDate}"
-                                       Foreground="{StaticResource TextPrimary}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="1" Grid.Column="2">
-                            <TextBlock Text="MAC Address"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding MacAddress}"
-                                           Foreground="{StaticResource TextPrimary}"
-                                           FontFamily="Consolas"
-                                           VerticalAlignment="Center" />
-                                <Button Style="{StaticResource IconButton}"
-                                        Command="{Binding CopyMacAddressCommand}"
-                                        Width="28" Height="28"
-                                        ToolTip="Copy MAC Address"
-                                        Margin="8,0,0,0">
-                                    <TextBlock Text="&#xE8C8;"
-                                               FontFamily="{StaticResource IconFontFamily}"
-                                               FontSize="12"
-                                               Foreground="{StaticResource TextSecondary}" />
-                                </Button>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="2" Grid.Column="0"
-                                    Visibility="{Binding ConnectionType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Bluetooth}">
-                            <TextBlock Text="Bluetooth RSSI"
-                                       Style="{StaticResource DSXMutedTextBlock}" />
-                            <Grid Margin="0,4,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <ProgressBar Grid.Column="0"
-                                             Value="{Binding BTRSSI}"
-                                             Minimum="-100" Maximum="0"
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,8">
+                                <TextBlock Text="Battery"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Foreground="{StaticResource TextPrimary}"
+                                               FontWeight="SemiBold">
+                                        <TextBlock.Text>
+                                            <Binding Path="BatteryPercent" StringFormat="{}{0:F0}%" />
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                    <TextBlock Text=" (Charging)"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               FontSize="{StaticResource SmallFontSize}"
+                                               Visibility="{Binding IsCharging, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                </StackPanel>
+                                <ProgressBar Value="{Binding BatteryPercent}"
                                              Style="{StaticResource DSXProgressBar}"
-                                             Height="6" />
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding BTRSSI, StringFormat='{}{0} dBm'}"
-                                           Foreground="{StaticResource TextSecondary}"
-                                           FontSize="{StaticResource SmallFontSize}"
-                                           Margin="8,0,0,0"
-                                           VerticalAlignment="Center" />
-                            </Grid>
-                        </StackPanel>
+                                             Height="6"
+                                             Margin="0,4,0,0">
+                                    <ProgressBar.Foreground>
+                                        <Binding Path="BatteryPercent">
+                                            <Binding.Converter>
+                                                <converters:BatteryToColorConverter />
+                                            </Binding.Converter>
+                                        </Binding>
+                                    </ProgressBar.Foreground>
+                                </ProgressBar>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,8">
+                                <TextBlock Text="Firmware Version"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <TextBlock Text="{Binding FirmwareVersion}"
+                                           Foreground="{StaticResource TextPrimary}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,12,8">
+                                <TextBlock Text="Build Date"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <TextBlock Text="{Binding BuildDate}"
+                                           Foreground="{StaticResource TextPrimary}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="2">
+                                <TextBlock Text="MAC Address"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding MacAddress}"
+                                               Foreground="{StaticResource TextPrimary}"
+                                               FontFamily="Consolas"
+                                               VerticalAlignment="Center" />
+                                    <Button Style="{StaticResource IconButton}"
+                                            Command="{Binding CopyMacAddressCommand}"
+                                            Width="28" Height="28"
+                                            ToolTip="Copy MAC Address"
+                                            Margin="8,0,0,0">
+                                        <TextBlock Text="&#xE8C8;"
+                                                   FontFamily="{StaticResource IconFontFamily}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource TextSecondary}" />
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0"
+                                        Visibility="{Binding ConnectionType, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Bluetooth}">
+                                <TextBlock Text="Bluetooth RSSI"
+                                           Style="{StaticResource DSXMutedTextBlock}" />
+                                <Grid Margin="0,4,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ProgressBar Grid.Column="0"
+                                                 Value="{Binding BTRSSI}"
+                                                 Minimum="-100" Maximum="0"
+                                                 Style="{StaticResource DSXProgressBar}"
+                                                 Height="6" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding BTRSSI, StringFormat='{}{0} dBm'}"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               FontSize="{StaticResource SmallFontSize}"
+                                               Margin="8,0,0,0"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
 
                     <!-- Device Features Grid -->

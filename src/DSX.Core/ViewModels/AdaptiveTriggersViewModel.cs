@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DSX.Core.Enums;
 using DSX.Core.Models;
+using DSX.Core.Services.Trigger;
 
 namespace DSX.Core.ViewModels;
 
@@ -49,6 +50,18 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
     [ObservableProperty]
     private bool _showDS4Warning;
 
+    [ObservableProperty]
+    private TriggerPreset _selectedPreset = TriggerPreset.Custom;
+
+    [ObservableProperty]
+    private string _presetDescription = string.Empty;
+
+    [ObservableProperty]
+    private TriggerPresetConfig? _selectedPresetFromList;
+
+    public ObservableCollection<TriggerPresetConfig> AvailablePresets { get; } =
+        new(TriggerPresets.AllPresets);
+
     public event EventHandler<string>? ExportRequested;
     public event EventHandler<string>? ImportRequested;
 
@@ -69,11 +82,74 @@ public partial class AdaptiveTriggersViewModel : ObservableObject
     partial void OnSelectedLeftTriggerModeChanged(TriggerMode value)
     {
         LeftTriggerConfig.Mode = value;
+        SelectedPreset = TriggerPreset.Custom;
     }
 
     partial void OnSelectedRightTriggerModeChanged(TriggerMode value)
     {
         RightTriggerConfig.Mode = value;
+        SelectedPreset = TriggerPreset.Custom;
+    }
+
+    partial void OnSelectedPresetChanged(TriggerPreset value)
+    {
+        if (value == TriggerPreset.Custom) return;
+
+        var preset = TriggerPresets.GetPreset(value);
+        if (preset == null) return;
+
+        PresetDescription = preset.Description;
+
+        SelectedLeftTriggerMode = preset.LeftTrigger.Mode;
+        SelectedRightTriggerMode = preset.RightTrigger.Mode;
+        StartPosition = preset.LeftTrigger.StartPosition;
+        EndPosition = preset.LeftTrigger.EndPosition;
+        Force = preset.RightTrigger.Force;
+        Amplitude = preset.RightTrigger.Amplitude;
+        Frequency = preset.RightTrigger.Frequency;
+    }
+
+    partial void OnSelectedPresetFromListChanged(TriggerPresetConfig? value)
+    {
+        if (value == null) return;
+        SelectedPreset = value.Preset;
+    }
+
+    [RelayCommand]
+    private void ApplyPreset()
+    {
+        if (SelectedPreset == TriggerPreset.Custom)
+        {
+            ApplyLeftTrigger();
+            ApplyRightTrigger();
+            return;
+        }
+
+        var preset = TriggerPresets.GetPreset(SelectedPreset);
+        if (preset == null) return;
+
+        LeftTriggerConfig = new TriggerConfig
+        {
+            Mode = preset.LeftTrigger.Mode,
+            StartPosition = preset.LeftTrigger.StartPosition,
+            EndPosition = preset.LeftTrigger.EndPosition,
+            Force = preset.LeftTrigger.Force,
+            Amplitude = preset.LeftTrigger.Amplitude,
+            Frequency = preset.LeftTrigger.Frequency
+        };
+
+        RightTriggerConfig = new TriggerConfig
+        {
+            Mode = preset.RightTrigger.Mode,
+            StartPosition = preset.RightTrigger.StartPosition,
+            EndPosition = preset.RightTrigger.EndPosition,
+            Force = preset.RightTrigger.Force,
+            Amplitude = preset.RightTrigger.Amplitude,
+            Frequency = preset.RightTrigger.Frequency
+        };
+
+        _main.ControllerService.SetAdaptiveTrigger(Interfaces.TriggerSide.Left, LeftTriggerConfig);
+        _main.ControllerService.SetAdaptiveTrigger(Interfaces.TriggerSide.Right, RightTriggerConfig);
     }
 
     private void LoadFromProfile()

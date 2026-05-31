@@ -11,6 +11,7 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
     </UserControl.Resources>
 
     <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
@@ -46,6 +47,60 @@
                       SelectedIndex="0">
                 <ComboBoxItem Content="Default Profile" />
             </ComboBox>
+
+            <!-- Trigger Presets -->
+            <Border Background="{StaticResource CardBackground}"
+                    BorderBrush="#2A2A2A"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="24"
+                    Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <Border Width="4" Height="20"
+                                Background="{StaticResource AccentBrush}"
+                                CornerRadius="2"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center" />
+                        <TextBlock Text="Game Presets"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <TextBlock Text="Select a game genre preset for instant trigger configuration"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               Margin="0,0,0,12" />
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <ComboBox Style="{StaticResource DSXComboBox}"
+                                  ItemsSource="{Binding AvailablePresets}"
+                                  SelectedItem="{Binding SelectedPresetFromList}"
+                                  DisplayMemberPath="DisplayName"
+                                  Margin="0,0,12,0" />
+
+                        <Button Grid.Column="1"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ApplyPresetCommand}"
+                                Content="&#xE768;  Apply Preset"
+                                Padding="20,8" />
+                    </Grid>
+
+                    <TextBlock Text="{Binding PresetDescription}"
+                               Foreground="{StaticResource TextMuted}"
+                               FontSize="12"
+                               Margin="0,4,0,0"
+                               Visibility="{Binding PresetDescription, Converter={StaticResource NullToVisibilityConverter}}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
 
             <!-- Two Side-by-Side Trigger Panels -->
             <Grid Margin="0,0,0,16">
