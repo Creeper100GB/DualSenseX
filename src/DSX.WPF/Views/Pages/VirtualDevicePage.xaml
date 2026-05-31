@@ -1,0 +1,464 @@
+<UserControl x:Class="DSX.WPF.Views.Pages.VirtualDevicePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:DSX.WPF.Controls"
+             xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="800">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,24">
+
+            <Border Background="#1AFF006E"
+                    BorderBrush="#33FF006E"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource DefaultCornerRadius}"
+                    Padding="16,12"
+                    Margin="0,0,0,16"
+                    Visibility="{Binding IsDSXPlusOwner, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="&#xE8C6;"
+                               FontFamily="{StaticResource IconFontFamily}"
+                               FontSize="20"
+                               Foreground="{StaticResource NeonPink}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="DSX+ Required"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}" />
+                        <TextBlock Text="Virtual device features require a DSX+ license. Get DSX+ to unlock all virtual controller options."
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="{StaticResource SmallFontSize}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="2"
+                            Style="{StaticResource PrimaryButton}"
+                            Content="Get DSX+"
+                            Padding="16,6"
+                            VerticalAlignment="Center"
+                            Margin="16,0,0,0" />
+                </Grid>
+            </Border>
+
+            <TabControl Style="{StaticResource DSXTabControl}"
+                        SelectedIndex="{Binding SelectedTab}"
+                        Margin="0,0,0,16">
+
+                <TabItem Style="{StaticResource DSXTabItem}" Header="Virtual DualSense">
+                    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,16,0,0">
+                            <Border Style="{StaticResource CardBorder}" Padding="20" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,16">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Virtual DualSense"
+                                                       FontSize="{StaticResource LargeFontSize}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimary}"
+                                                       VerticalAlignment="Center" />
+                                            <Border Background="{StaticResource SecondaryBackground}"
+                                                    CornerRadius="{StaticResource RoundCornerRadius}"
+                                                    Padding="8,3"
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock FontSize="{StaticResource SmallFontSize}" FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="Not Created" />
+                                                            <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasVirtualDualSense}" Value="True">
+                                                                    <Setter Property="Text" Value="Active" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
+                                        <Ellipse Width="10" Height="10"
+                                                 HorizontalAlignment="Right"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,4,0">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasVirtualDualSense}" Value="True">
+                                                            <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                                                            <Setter Property="Effect">
+                                                                <Setter.Value>
+                                                                    <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="6" ShadowDepth="0" Opacity="0.5" />
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                    </Grid>
+
+                                    <Button Command="{Binding CreateVirtualDualSenseCommand}"
+                                            Content="Create Virtual DualSense"
+                                            Padding="20,8"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,0,16">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasVirtualDualSense}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="DSX+ Sync"
+                                                       Foreground="{StaticResource TextPrimary}" />
+                                            <TextBlock Text="Sync virtual device with DSX+ license for full features"
+                                                       Foreground="{StaticResource TextMuted}"
+                                                       FontSize="{StaticResource SmallFontSize}"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Command="{Binding SyncDSXPlusCommand}"
+                                                Content="Sync"
+                                                Padding="16,6"
+                                                VerticalAlignment="Center" />
+                                    </Grid>
+
+                                    <Separator Style="{StaticResource DSXSeparator}" Margin="0,4,0,12" />
+
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Add Sound Device"
+                                                       Foreground="{StaticResource TextPrimary}" />
+                                            <TextBlock Text="Create a virtual audio device for haptic feedback"
+                                                       Foreground="{StaticResource TextMuted}"
+                                                       FontSize="{StaticResource SmallFontSize}"
+                                                       Margin="0,2,0,0" />
+                                        </StackPanel>
+                                        <controls:ToggleSwitch Grid.Column="1"
+                                                               IsChecked="{Binding HasVirtualDualSense}"
+                                                               Width="44" Height="24"
+                                                               VerticalAlignment="Center" />
+                                    </Grid>
+
+                                    <Border Background="{StaticResource SecondaryBackground}"
+                                            CornerRadius="{StaticResource SmallCornerRadius}"
+                                            Padding="12,8"
+                                            Margin="0,0,0,16">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE946;"
+                                                       FontFamily="{StaticResource IconFontFamily}"
+                                                       FontSize="14"
+                                                       Foreground="{StaticResource AccentBrush}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0" />
+                                            <TextBlock Text="Virtual DualSense supports adaptive triggers, haptic vibration, and motion controls when used with DSX."
+                                                       Foreground="{StaticResource TextSecondary}"
+                                                       FontSize="{StaticResource SmallFontSize}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Button Command="{Binding RemoveVirtualDeviceCommand}"
+                                            Content="Remove Virtual DualSense"
+                                            Padding="16,6"
+                                            HorizontalAlignment="Left">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasVirtualDualSense}" Value="False">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Style="{StaticResource DSXTabItem}" Header="Virtual Xbox 360">
+                    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,16,0,0">
+                            <Border Style="{StaticResource CardBorder}" Padding="20" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,16">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Virtual Xbox 360"
+                                                       FontSize="{StaticResource LargeFontSize}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimary}"
+                                                       VerticalAlignment="Center" />
+                                            <Border Background="{StaticResource SecondaryBackground}"
+                                                    CornerRadius="{StaticResource RoundCornerRadius}"
+                                                    Padding="8,3"
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock FontSize="{StaticResource SmallFontSize}" FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="Not Created" />
+                                                            <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasVirtualXbox360}" Value="True">
+                                                                    <Setter Property="Text" Value="Active" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
+                                        <Ellipse Width="10" Height="10"
+                                                 HorizontalAlignment="Right"
+                                                 VerticalAlignment="Center">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasVirtualXbox360}" Value="True">
+                                                            <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                    </Grid>
+
+                                    <Border Background="{StaticResource SecondaryBackground}"
+                                            CornerRadius="{StaticResource SmallCornerRadius}"
+                                            Padding="12,8"
+                                            Margin="0,0,0,16">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE946;"
+                                                       FontFamily="{StaticResource IconFontFamily}"
+                                                       FontSize="14"
+                                                       Foreground="{StaticResource NeonGreen}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0" />
+                                            <TextBlock Text="Xbox 360 emulation provides broad game compatibility with standard rumble and trigger support."
+                                                       Foreground="{StaticResource TextSecondary}"
+                                                       FontSize="{StaticResource SmallFontSize}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Button Command="{Binding CreateVirtualXbox360Command}"
+                                            Content="Create Virtual Xbox 360"
+                                            Padding="20,8"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,0,16">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasVirtualXbox360}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Command="{Binding RemoveVirtualDeviceCommand}"
+                                            Content="Remove Virtual Xbox 360"
+                                            Padding="16,6"
+                                            HorizontalAlignment="Left">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasVirtualXbox360}" Value="False">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Style="{StaticResource DSXTabItem}" Header="Virtual DualShock 4">
+                    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="0,16,0,0">
+                            <Border Style="{StaticResource CardBorder}" Padding="20" Margin="0,0,0,12">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,16">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Virtual DualShock 4"
+                                                       FontSize="{StaticResource LargeFontSize}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimary}"
+                                                       VerticalAlignment="Center" />
+                                            <Border Background="{StaticResource SecondaryBackground}"
+                                                    CornerRadius="{StaticResource RoundCornerRadius}"
+                                                    Padding="8,3"
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock FontSize="{StaticResource SmallFontSize}" FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="Not Created" />
+                                                            <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasVirtualDS4}" Value="True">
+                                                                    <Setter Property="Text" Value="Active" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                        </StackPanel>
+                                        <Ellipse Width="10" Height="10"
+                                                 HorizontalAlignment="Right"
+                                                 VerticalAlignment="Center">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource ErrorBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasVirtualDS4}" Value="True">
+                                                            <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                    </Grid>
+
+                                    <Border Background="{StaticResource SecondaryBackground}"
+                                            CornerRadius="{StaticResource SmallCornerRadius}"
+                                            Padding="12,8"
+                                            Margin="0,0,0,16">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE946;"
+                                                       FontFamily="{StaticResource IconFontFamily}"
+                                                       FontSize="14"
+                                                       Foreground="{StaticResource NeonBlue}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0" />
+                                            <TextBlock Text="DualShock 4 emulation is ideal for PlayStation-compatible games and remote play."
+                                                       Foreground="{StaticResource TextSecondary}"
+                                                       FontSize="{StaticResource SmallFontSize}"
+                                                       TextWrapping="Wrap" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Button Command="{Binding CreateVirtualDS4Command}"
+                                            Content="Create Virtual DualShock 4"
+                                            Padding="20,8"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,0,0,16">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasVirtualDS4}" Value="True">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <Button Command="{Binding RemoveVirtualDeviceCommand}"
+                                            Content="Remove Virtual DualShock 4"
+                                            Padding="16,6"
+                                            HorizontalAlignment="Left">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasVirtualDS4}" Value="False">
+                                                        <Setter Property="IsEnabled" Value="False" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+
+            <Border Style="{StaticResource CardBorder}" Padding="20" Margin="0,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="Information"
+                               FontSize="{StaticResource LargeFontSize}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"
+                               Margin="0,0,0,12" />
+
+                    <Border Background="{StaticResource SecondaryBackground}"
+                            CornerRadius="{StaticResource SmallCornerRadius}"
+                            Padding="12,8"
+                            Margin="0,0,0,8">
+                        <StackPanel>
+                            <TextBlock Text="Emulation Compatibility"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,4" />
+                            <TextBlock Text="Virtual controllers work with most games. Xbox 360 offers the widest compatibility. DualShock 4 is best for PlayStation titles. DualSense provides advanced features like adaptive triggers."
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="{StaticResource SmallFontSize}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="{StaticResource SecondaryBackground}"
+                            CornerRadius="{StaticResource SmallCornerRadius}"
+                            Padding="12,8">
+                        <StackPanel>
+                            <TextBlock Text="Running Without Steam"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,4" />
+                            <TextBlock TextWrapping="Wrap"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="{StaticResource SmallFontSize}">
+                                <Run Text="When running without Steam, virtual devices maintain a 28-day cache for DSX+ users. Ensure your controller remains connected for the best experience." />
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

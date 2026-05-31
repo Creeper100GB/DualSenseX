@@ -1,0 +1,48 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## .NET
+*.deps.json
+*.runtimeconfig.json
+*.dll
+*.exe
+*.pdb
+*.cache
+
+## NuGet
+**/packages/*
+*.nupkg
+**/[Rr]elease/*
+*.snupkg
+nuget.exe
+
+## OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+## Logs
+*.log
+*.dmp
+
+## Test results
+TestResults/

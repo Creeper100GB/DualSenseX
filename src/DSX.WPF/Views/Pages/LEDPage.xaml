@@ -1,0 +1,399 @@
+<UserControl x:Class="DSX.WPF.Views.Pages.LEDPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:DSX.WPF.Controls"
+             xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="900">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        <converters:RgbToBrushConverter x:Key="RgbToBrushConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,24">
+
+            <!-- Touchpad LED Section -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16" Padding="20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="Touchpad LED"
+                                   FontSize="{StaticResource LargeFontSize}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   VerticalAlignment="Center" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ApplyTouchpadLEDCommand}"
+                                Content="Apply"
+                                HorizontalAlignment="Right"
+                                Padding="20,6" />
+                    </Grid>
+
+                    <TextBlock Text="Mode"
+                               Foreground="{StaticResource TextSecondary}"
+                               Margin="0,0,0,4" />
+                    <ComboBox Style="{StaticResource DSXComboBox}"
+                              ItemsSource="{Binding AvailableLEDModes}"
+                              SelectedItem="{Binding SelectedTouchpadMode}"
+                              Margin="0,0,0,16" />
+
+                    <!-- Color Picker for Static/Custom/Breathing/Strobing -->
+                    <StackPanel Margin="0,0,0,16"
+                                Visibility="{Binding SelectedTouchpadMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=StaticColor|Custom|Breathing|Strobing}">
+                        <TextBlock Text="Color"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,8" />
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="R" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding TouchpadRed}"
+                                        Minimum="0" Maximum="255"
+                                        Width="120"
+                                        Background="#33FF0000" />
+                                <TextBlock Text="{Binding TouchpadRed}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="G" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding TouchpadGreen}"
+                                        Minimum="0" Maximum="255"
+                                        Width="120" />
+                                <TextBlock Text="{Binding TouchpadGreen}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="B" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding TouchpadBlue}"
+                                        Minimum="0" Maximum="255"
+                                        Width="120" />
+                                <TextBlock Text="{Binding TouchpadBlue}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Width="60" Height="30"
+                                CornerRadius="{StaticResource SmallCornerRadius}"
+                                Margin="0,8,0,0"
+                                HorizontalAlignment="Left">
+                            <Border.Background>
+                                <MultiBinding Converter="{StaticResource RgbToBrushConverter}">
+                                    <Binding Path="TouchpadRed" />
+                                    <Binding Path="TouchpadGreen" />
+                                    <Binding Path="TouchpadBlue" />
+                                </MultiBinding>
+                            </Border.Background>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Rainbow Speed -->
+                    <StackPanel Margin="0,0,0,16"
+                                Visibility="{Binding SelectedTouchpadMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Rainbow}">
+                        <TextBlock Text="Rainbow Speed"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,8" />
+                        <UniformGrid Columns="4" Width="400" HorizontalAlignment="Left">
+                            <Button Style="{StaticResource SecondaryButton}"
+                                    Content="Slow"
+                                    Margin="0,0,4,0"
+                                    Padding="12,6" />
+                            <Button Style="{StaticResource SecondaryButton}"
+                                    Content="Medium"
+                                    Margin="4,0,4,0"
+                                    Padding="12,6" />
+                            <Button Style="{StaticResource SecondaryButton}"
+                                    Content="Fast"
+                                    Margin="4,0,4,0"
+                                    Padding="12,6" />
+                            <Button Style="{StaticResource SecondaryButton}"
+                                    Content="Hyper"
+                                    Margin="4,0,0,0"
+                                    Padding="12,6" />
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <!-- Breathing Speed -->
+                    <StackPanel Margin="0,0,0,8"
+                                Visibility="{Binding SelectedTouchpadMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Breathing}">
+                        <TextBlock Text="Breathing Speed"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding BreathingSpeed}"
+                                    Minimum="0" Maximum="100" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding BreathingSpeed, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Strobing Speed -->
+                    <StackPanel Margin="0,0,0,8"
+                                Visibility="{Binding SelectedTouchpadMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Strobing}">
+                        <TextBlock Text="Strobing Speed"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding StrobingSpeed}"
+                                    Minimum="0" Maximum="100" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding StrobingSpeed, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Battery Level Colors -->
+                    <StackPanel Margin="0,8,0,0"
+                                Visibility="{Binding SelectedTouchpadMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Battery}">
+                        <TextBlock Text="Battery Level Colors"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,8" />
+                        <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,8,0">
+                                <TextBlock Text="Low" Foreground="{StaticResource ErrorBrush}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                                <Border Width="60" Height="30" CornerRadius="{StaticResource SmallCornerRadius}" Margin="0,4,0,0" HorizontalAlignment="Center">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource RgbToBrushConverter}">
+                                            <Binding Path="BatteryLowRed" />
+                                            <Binding Path="BatteryLowGreen" />
+                                            <Binding Path="BatteryLowBlue" />
+                                        </MultiBinding>
+                                    </Border.Background>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="8,0,8,0">
+                                <TextBlock Text="Medium" Foreground="{StaticResource WarningBrush}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                                <Border Width="60" Height="30" CornerRadius="{StaticResource SmallCornerRadius}" Margin="0,4,0,0" HorizontalAlignment="Center">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource RgbToBrushConverter}">
+                                            <Binding Path="BatteryMedRed" />
+                                            <Binding Path="BatteryMedGreen" />
+                                            <Binding Path="BatteryMedBlue" />
+                                        </MultiBinding>
+                                    </Border.Background>
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="8,0,0,0">
+                                <TextBlock Text="Full" Foreground="{StaticResource AccentBrush}" FontSize="{StaticResource SmallFontSize}" HorizontalAlignment="Center" />
+                                <Border Width="60" Height="30" CornerRadius="{StaticResource SmallCornerRadius}" Margin="0,4,0,0" HorizontalAlignment="Center">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource RgbToBrushConverter}">
+                                            <Binding Path="BatteryFullRed" />
+                                            <Binding Path="BatteryFullGreen" />
+                                            <Binding Path="BatteryFullBlue" />
+                                        </MultiBinding>
+                                    </Border.Background>
+                                </Border>
+                            </StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Player LED Section -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16" Padding="20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="Player LED"
+                                   FontSize="{StaticResource LargeFontSize}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   VerticalAlignment="Center" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ApplyPlayerLEDCommand}"
+                                Content="Apply"
+                                HorizontalAlignment="Right"
+                                Padding="20,6" />
+                    </Grid>
+
+                    <TextBlock Text="Mode"
+                               Foreground="{StaticResource TextSecondary}"
+                               Margin="0,0,0,4" />
+                    <ComboBox Style="{StaticResource DSXComboBox}"
+                              ItemsSource="{Binding AvailablePlayerLEDModes}"
+                              SelectedItem="{Binding SelectedPlayerMode}"
+                              Margin="0,0,0,16" />
+
+                    <!-- LED Indicator Circles -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                        <Ellipse x:Name="PlayerLED1" Width="24" Height="24"
+                                 Fill="{StaticResource BorderBrush}"
+                                 Stroke="{StaticResource TextMuted}"
+                                 StrokeThickness="1"
+                                 Margin="8,0" />
+                        <Ellipse x:Name="PlayerLED2" Width="24" Height="24"
+                                 Fill="{StaticResource BorderBrush}"
+                                 Stroke="{StaticResource TextMuted}"
+                                 StrokeThickness="1"
+                                 Margin="8,0" />
+                        <Ellipse x:Name="PlayerLED3" Width="24" Height="24"
+                                 Fill="{StaticResource BorderBrush}"
+                                 Stroke="{StaticResource TextMuted}"
+                                 StrokeThickness="1"
+                                 Margin="8,0" />
+                        <Ellipse x:Name="PlayerLED4" Width="24" Height="24"
+                                 Fill="{StaticResource BorderBrush}"
+                                 Stroke="{StaticResource TextMuted}"
+                                 StrokeThickness="1"
+                                 Margin="8,0" />
+                        <Ellipse x:Name="PlayerLED5" Width="24" Height="24"
+                                 Fill="{StaticResource BorderBrush}"
+                                 Stroke="{StaticResource TextMuted}"
+                                 StrokeThickness="1"
+                                 Margin="8,0" />
+                    </StackPanel>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Flash while charging"
+                                   Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" />
+                        <controls:ToggleSwitch Grid.Column="1"
+                                               IsChecked="{Binding FlashWhileCharging}"
+                                               Width="44" Height="24" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Mute Button LED Section -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,16" Padding="20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="Mute Button LED"
+                                   FontSize="{StaticResource LargeFontSize}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   VerticalAlignment="Center" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ApplyMuteLEDCommand}"
+                                Content="Apply"
+                                HorizontalAlignment="Right"
+                                Padding="20,6" />
+                    </Grid>
+
+                    <TextBlock Text="Mode"
+                               Foreground="{StaticResource TextSecondary}"
+                               Margin="0,0,0,4" />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <RadioButton Content="Always On"
+                                     GroupName="MuteLED"
+                                     Foreground="{StaticResource TextSecondary}"
+                                     Margin="0,0,16,0" />
+                        <RadioButton Content="Always Off"
+                                     GroupName="MuteLED"
+                                     Foreground="{StaticResource TextSecondary}"
+                                     Margin="0,0,16,0" />
+                        <RadioButton Content="Follows Mic Mute State"
+                                     GroupName="MuteLED"
+                                     IsChecked="True"
+                                     Foreground="{StaticResource TextSecondary}" />
+                    </StackPanel>
+
+                    <UniformGrid Columns="2">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Muted State Color"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Margin="0,0,0,8" />
+                             <Border Width="60" Height="30"
+                                     CornerRadius="{StaticResource SmallCornerRadius}"
+                                     HorizontalAlignment="Left">
+                                 <Border.Background>
+                                     <MultiBinding Converter="{StaticResource RgbToBrushConverter}">
+                                         <Binding Path="MutedRed" />
+                                         <Binding Path="MutedGreen" />
+                                         <Binding Path="MutedBlue" />
+                                     </MultiBinding>
+                                 </Border.Background>
+                             </Border>
+                            <TextBlock Margin="0,4,0,0">
+                                <Run Text="R=" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text="{Binding MutedRed, Mode=OneWay}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text=" G=" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text="{Binding MutedGreen, Mode=OneWay}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text=" B=" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text="{Binding MutedBlue, Mode=OneWay}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Margin="12,0,0,0">
+                            <TextBlock Text="Unmuted State Color"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Margin="0,0,0,8" />
+                             <Border Width="60" Height="30"
+                                     CornerRadius="{StaticResource SmallCornerRadius}"
+                                     HorizontalAlignment="Left">
+                                 <Border.Background>
+                                     <MultiBinding Converter="{StaticResource RgbToBrushConverter}">
+                                         <Binding Path="UnmutedRed" />
+                                         <Binding Path="UnmutedGreen" />
+                                         <Binding Path="UnmutedBlue" />
+                                     </MultiBinding>
+                                 </Border.Background>
+                             </Border>
+                            <TextBlock Margin="0,4,0,0">
+                                <Run Text="R=" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text="{Binding UnmutedRed, Mode=OneWay}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text=" G=" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text="{Binding UnmutedGreen, Mode=OneWay}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text=" B=" Foreground="{StaticResource TextMuted}" FontSize="{StaticResource SmallFontSize}" />
+                                <Run Text="{Binding UnmutedBlue, Mode=OneWay}" Foreground="{StaticResource TextSecondary}" FontSize="{StaticResource SmallFontSize}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- DualSense Edge Section -->
+            <Border Style="{StaticResource CardBorder}" Padding="20"
+                    Visibility="{Binding IsDualSenseEdge, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock Text="DualSense Edge"
+                               FontSize="{StaticResource LargeFontSize}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"
+                               Margin="0,0,0,16" />
+
+                    <TextBlock Text="Controller View Skin"
+                               Foreground="{StaticResource TextSecondary}"
+                               Margin="0,0,0,4" />
+                    <ComboBox Style="{StaticResource DSXComboBox}"
+                              ItemsSource="{Binding AvailableSkins}"
+                              SelectedItem="{Binding ControllerViewSkin}"
+                              Width="200"
+                              HorizontalAlignment="Left"
+                              Margin="0,0,0,12" />
+
+                    <Border Background="{StaticResource SecondaryBackground}"
+                            CornerRadius="{StaticResource DefaultCornerRadius}"
+                            Width="200" Height="100"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="Skin Preview"
+                                   Foreground="{StaticResource TextMuted}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

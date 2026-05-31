@@ -1,0 +1,17 @@
+﻿<Application x:Class="DSX.WPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:DSX.WPF"
+             Startup="OnStartup"
+             Exit="OnExit"
+             DispatcherUnhandledException="OnDispatcherUnhandledException">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/DSX;component/Styles/Colors.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/DSX;component/Styles/DefaultStyles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/DSX;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

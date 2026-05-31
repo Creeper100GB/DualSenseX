@@ -1,0 +1,296 @@
+<UserControl x:Class="DSX.WPF.Views.Pages.HelpCenterPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:DSX.WPF.Controls"
+             xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="900">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,24">
+
+            <TextBlock Text="Help Center"
+                       FontSize="{StaticResource TitleFontSize}"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimary}"
+                       Margin="0,0,0,16" />
+
+            <Grid Margin="0,0,0,16">
+                <Border Background="{StaticResource InputBackground}"
+                        BorderBrush="{StaticResource InputBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{StaticResource DefaultCornerRadius}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="&#xE721;"
+                                   FontFamily="{StaticResource IconFontFamily}"
+                                   FontSize="14"
+                                   Foreground="{StaticResource TextMuted}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,8,0" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource DSXTextBox}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="0,8,10,8"
+                                 ToolTip="Search FAQ items" />
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <TextBlock Text="Frequently Asked Questions"
+                       FontSize="{StaticResource LargeFontSize}"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimary}"
+                       Margin="0,0,0,8" />
+
+            <Border Background="#1AFFB800"
+                    BorderBrush="#33FFB800"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource DefaultCornerRadius}"
+                    Padding="12,8"
+                    Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7BA;"
+                               FontFamily="{StaticResource IconFontFamily}"
+                               FontSize="14"
+                               Foreground="{StaticResource WarningBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0" />
+                    <TextBlock Text="This section is a work in progress. More FAQ items will be added in future updates."
+                               Foreground="{StaticResource WarningBrush}"
+                               FontSize="{StaticResource SmallFontSize}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding FilteredFAQ}" Margin="0,0,0,16">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Expander Style="{StaticResource DSXExpander}"
+                                  Header="{Binding Question}"
+                                  Margin="0,0,0,4">
+                            <TextBlock Text="{Binding Answer}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       TextWrapping="Wrap"
+                                       Margin="4,8,4,4" />
+                        </Expander>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="Community Links"
+                       FontSize="{StaticResource LargeFontSize}"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimary}"
+                       Margin="0,8,0,12" />
+
+            <UniformGrid Columns="3" Margin="0,0,0,16">
+                <Button Style="{StaticResource SecondaryButton}"
+                        Command="{Binding OpenDiscordCommand}"
+                        Margin="0,0,8,0"
+                        Height="80">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8BD;"
+                                   FontFamily="{StaticResource IconFontFamily}"
+                                   FontSize="20"
+                                   Foreground="{StaticResource NeonPurple}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,6" />
+                        <TextBlock Text="Discord"
+                                   FontSize="{StaticResource SmallFontSize}"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Style="{StaticResource SecondaryButton}"
+                        Command="{Binding OpenRedditCommand}"
+                        Margin="8,0,8,0"
+                        Height="80">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8D6;"
+                                   FontFamily="{StaticResource IconFontFamily}"
+                                   FontSize="20"
+                                   Foreground="{StaticResource WarningBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,6" />
+                        <TextBlock Text="Reddit"
+                                   FontSize="{StaticResource SmallFontSize}"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Style="{StaticResource SecondaryButton}"
+                        Command="{Binding OpenYouTubeCommand}"
+                        Margin="8,0,0,0"
+                        Height="80">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE714;"
+                                   FontFamily="{StaticResource IconFontFamily}"
+                                   FontSize="20"
+                                   Foreground="{StaticResource ErrorBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,6" />
+                        <TextBlock Text="YouTube"
+                                   FontSize="{StaticResource SmallFontSize}"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+
+            <TextBlock Text="Troubleshooting"
+                       FontSize="{StaticResource LargeFontSize}"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimary}"
+                       Margin="0,8,0,12" />
+
+            <Border Background="#1AFF3333"
+                    BorderBrush="#33FF3333"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource DefaultCornerRadius}"
+                    Padding="16,12"
+                    Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="&#xE783;"
+                               FontFamily="{StaticResource IconFontFamily}"
+                               FontSize="20"
+                               Foreground="{StaticResource ErrorBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="BSOD Warning"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource ErrorBrush}"
+                                   FontSize="{StaticResource MediumFontSize}" />
+                        <TextBlock Text="The Steam Xbox Extended Feature Support Driver has been known to cause Blue Screen of Death (BSOD) issues. If you experience BSODs while using DSX, try disabling this driver in Steam settings."
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="{StaticResource SmallFontSize}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Expander Style="{StaticResource DSXExpander}" Header="Controller not detected" Margin="0,0,0,4">
+                <StackPanel Margin="0,8,0,0">
+                    <TextBlock Text="1. Ensure the controller is properly connected via USB or Bluetooth."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="2. Check that the correct drivers are installed for your controller."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="3. Try disconnecting and reconnecting the controller."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="4. Restart DSX and try again."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Expander>
+
+            <Expander Style="{StaticResource DSXExpander}" Header="Adaptive triggers not working" Margin="0,0,0,4">
+                <StackPanel Margin="0,8,0,0">
+                    <TextBlock Text="1. Adaptive triggers are only supported on DualSense and DualSense Edge controllers."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="2. Ensure the trigger mode is not set to 'Off' in the Adaptive Triggers page."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="3. Check that the controller is connected via USB for the best experience."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Expander>
+
+            <Expander Style="{StaticResource DSXExpander}" Header="Virtual controller issues" Margin="0,0,0,4">
+                <StackPanel Margin="0,8,0,0">
+                    <TextBlock Text="1. Make sure ViGEmBus driver is installed (included with DSX)."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="2. Remove existing virtual controllers before creating new ones."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="3. Use HidHide to hide the physical controller if games detect both."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Expander>
+
+            <Expander Style="{StaticResource DSXExpander}" Header="Bluetooth connection drops" Margin="0,0,0,16">
+                <StackPanel Margin="0,8,0,0">
+                    <TextBlock Text="1. Ensure your Bluetooth adapter supports Bluetooth 4.0 or higher."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="2. Keep the controller within range of the Bluetooth adapter."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,4" />
+                    <TextBlock Text="3. Remove other Bluetooth devices that may cause interference."
+                               Foreground="{StaticResource TextSecondary}"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Expander>
+
+            <Border Background="{StaticResource SecondaryBackground}"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource DefaultCornerRadius}"
+                    Padding="16,12"
+                    Margin="0,0,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="&#xE776;"
+                               FontFamily="{StaticResource IconFontFamily}"
+                               FontSize="18"
+                               Foreground="{StaticResource AccentBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="Screen Reader Accessibility"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontSize="{StaticResource MediumFontSize}" />
+                        <TextBlock Text="DualSenseX supports Windows screen readers (Narrator, NVDA, JAWS). All controls are labeled with UI Automation properties for accessibility. If you encounter accessibility issues, please report them on our Discord or GitHub."
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="{StaticResource SmallFontSize}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

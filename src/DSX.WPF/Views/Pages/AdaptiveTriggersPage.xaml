@@ -1,0 +1,376 @@
+<UserControl x:Class="DSX.WPF.Views.Pages.AdaptiveTriggersPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:DSX.WPF.Controls"
+             xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="800">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,24">
+
+            <!-- DS4 Warning Banner -->
+            <Border x:Name="DS4WarningBanner"
+                    Background="#1AFFB800"
+                    BorderBrush="#33FFB800"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource DefaultCornerRadius}"
+                    Padding="12,10"
+                    Margin="0,0,0,12"
+                    Visibility="{Binding ShowDS4Warning, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7BA;"
+                               FontFamily="{StaticResource IconFontFamily}"
+                               FontSize="16"
+                               Foreground="{StaticResource WarningBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0" />
+                    <TextBlock Text="Only DualSense controllers are supported for Adaptive Triggers"
+                               Foreground="{StaticResource WarningBrush}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- Profile Selector -->
+            <ComboBox Style="{StaticResource DSXComboBox}"
+                      Margin="0,0,0,16"
+                      Width="200"
+                      HorizontalAlignment="Left"
+                      SelectedIndex="0">
+                <ComboBoxItem Content="Default Profile" />
+            </ComboBox>
+
+            <!-- Two Side-by-Side Trigger Panels -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Trigger Panel -->
+                <Border Grid.Column="0" Style="{StaticResource CardBorder}" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Left Trigger"
+                                   FontSize="{StaticResource MediumFontSize}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,12" />
+
+                        <TextBlock Text="Mode"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <ComboBox Style="{StaticResource DSXComboBox}"
+                                  ItemsSource="{Binding AvailableTriggerModes}"
+                                  SelectedItem="{Binding SelectedLeftTriggerMode}"
+                                  Margin="0,0,0,12" />
+
+                        <TextBlock Text="Start Position"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding StartPosition}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding StartPosition}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="End Position"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding EndPosition}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EndPosition}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Force"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding Force}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Force}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Amplitude"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding Amplitude}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Amplitude}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Frequency"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding Frequency}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Frequency}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <!-- Trigger Visual Indicator -->
+                        <Border Background="{StaticResource SecondaryBackground}"
+                                CornerRadius="{StaticResource SmallCornerRadius}"
+                                Height="40"
+                                Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0"
+                                        Background="#1500D4AA"
+                                        BorderBrush="{StaticResource AccentBrush}"
+                                        BorderThickness="1,0,0,0" />
+                                <Border Grid.Column="1"
+                                        Background="#0A00D4AA" />
+                            </Grid>
+                        </Border>
+
+                        <Button Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ApplyLeftTriggerCommand}"
+                                Content="Apply"
+                                HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Right Trigger Panel -->
+                <Border Grid.Column="2" Style="{StaticResource CardBorder}" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Right Trigger"
+                                   FontSize="{StaticResource MediumFontSize}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,12" />
+
+                        <TextBlock Text="Mode"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <ComboBox Style="{StaticResource DSXComboBox}"
+                                  ItemsSource="{Binding AvailableTriggerModes}"
+                                  SelectedItem="{Binding SelectedRightTriggerMode}"
+                                  Margin="0,0,0,12" />
+
+                        <TextBlock Text="Start Position"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding StartPosition}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding StartPosition}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="End Position"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding EndPosition}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding EndPosition}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Force"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding Force}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Force}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Amplitude"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding Amplitude}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Amplitude}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <TextBlock Text="Frequency"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,0,0,4" />
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding Frequency}"
+                                    Minimum="0" Maximum="255" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Frequency}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       Width="36" TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,0,0" />
+                        </Grid>
+
+                        <Border Background="{StaticResource SecondaryBackground}"
+                                CornerRadius="{StaticResource SmallCornerRadius}"
+                                Height="40"
+                                Margin="0,0,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0"
+                                        Background="#1500D4AA"
+                                        BorderBrush="{StaticResource AccentBrush}"
+                                        BorderThickness="1,0,0,0" />
+                                <Border Grid.Column="1"
+                                        Background="#0A00D4AA" />
+                            </Grid>
+                        </Border>
+
+                        <Button Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ApplyRightTriggerCommand}"
+                                Content="Apply"
+                                HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Export / Import Section -->
+            <Border Style="{StaticResource CardBorder}" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Export / Import"
+                               FontSize="{StaticResource MediumFontSize}"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"
+                               Margin="0,0,0,12" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ExportToClipboardCommand}"
+                                Content="Copy to Clipboard"
+                                Margin="0,0,8,0"
+                                Padding="16,6" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ExportForTextfileCommand}"
+                                Content="Export for Textfile"
+                                Margin="0,0,8,0"
+                                Padding="16,6" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ExportForUDPCommand}"
+                                Content="Export for UDP"
+                                Padding="16,6" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ImportFromClipboardCommand}"
+                                Content="Import from Clipboard"
+                                Margin="0,0,8,0"
+                                Padding="16,6" />
+                        <Button Style="{StaticResource SecondaryButton}"
+                                Command="{Binding ImportFromFileCommand}"
+                                Content="Import from File"
+                                Padding="16,6" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

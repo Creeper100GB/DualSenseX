@@ -1,0 +1,496 @@
+<UserControl x:Class="DSX.WPF.Views.Pages.HomePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:DSX.WPF.Controls"
+             xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="700">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BatteryToColorConverter x:Key="BatteryToColorConverter" />
+        <converters:PercentageToWidthConverter x:Key="PercentageToWidthConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,32">
+
+            <!-- Hero Card -->
+            <Border Background="#141414"
+                    BorderBrush="#2A2A2A"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="28,24"
+                    Margin="0,0,0,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Width="64" Height="64"
+                            CornerRadius="14"
+                            Background="#0D0D0D"
+                            Margin="0,0,24,0">
+                        <Image Source="pack://application:,,,/DSX;component/Resources/Images/dualsensex_icon.png"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Width="48" Height="48"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="DSX"
+                                       FontSize="28"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Text="v3.1.5.3"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextMuted}"
+                                       VerticalAlignment="Bottom"
+                                       Margin="10,0,0,4" />
+                        </StackPanel>
+                        <TextBlock Text="Take control. Play sharper."
+                                   FontSize="13"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <Border Grid.Column="2"
+                            Background="#0A2A22"
+                            CornerRadius="6"
+                            Padding="12,6"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8"
+                                     Fill="{StaticResource AccentBrush}"
+                                     VerticalAlignment="Center"
+                                     Margin="0,0,8,0" />
+                            <TextBlock FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Controller Detected" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsControllerConnected}" Value="False">
+                                                <Setter Property="Text" Value="No Controller" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Connected Controller Card -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,20" Padding="24"
+                    CornerRadius="12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Width="120" Height="120"
+                            Background="#0D0D0D"
+                            CornerRadius="12"
+                            Margin="0,0,24,0">
+                        <Image Source="pack://application:,,,/DSX;component/Resources/Images/dualsensex.png"
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Width="100" Height="100"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Opacity="0.9" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ControllerName}"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Ellipse Width="8" Height="8"
+                                     VerticalAlignment="Center"
+                                     Margin="0,0,8,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="{StaticResource AccentBrush}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ConnectionType}" Value="Bluetooth">
+                                                <Setter Property="Fill" Value="{StaticResource NeonBlue}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock FontFamily="{StaticResource IconFontFamily}"
+                                       FontSize="13"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,6,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="&#xE85E;" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ConnectionType}" Value="Bluetooth">
+                                                <Setter Property="Text" Value="&#xE702;" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="USB" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ConnectionType}" Value="Bluetooth">
+                                                <Setter Property="Text" Value="Bluetooth" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding ConnectionType}" Value="USBWirelessAdapter">
+                                                <Setter Property="Text" Value="Wireless Adapter" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Foreground="{StaticResource TextMuted}"
+                                   FontSize="12"
+                                   Margin="0,6,0,0">
+                            <Run Text="MAC: " /><Run Text="{Binding MacAddress, Mode=OneWay}" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                Width="160">
+                        <TextBlock Text="{Binding BatteryStatusText}"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Right" />
+                        <Grid Width="160" Height="10" Margin="0,8,0,0">
+                            <Border Background="{StaticResource SliderTrackBrush}"
+                                    CornerRadius="5" />
+                            <Border CornerRadius="5" HorizontalAlignment="Left">
+                                <Border.Width>
+                                    <Binding Path="BatteryPercent" ConverterParameter="160">
+                                        <Binding.Converter>
+                                            <converters:PercentageToWidthConverter />
+                                        </Binding.Converter>
+                                    </Binding>
+                                </Border.Width>
+                                <Border.Background>
+                                    <Binding Path="BatteryPercent">
+                                        <Binding.Converter>
+                                            <converters:BatteryToColorConverter />
+                                        </Binding.Converter>
+                                    </Binding>
+                                </Border.Background>
+                                <Border.Effect>
+                                    <DropShadowEffect Color="{StaticResource AccentColor}"
+                                                      BlurRadius="8" ShadowDepth="0" Opacity="0.3" />
+                                </Border.Effect>
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="Battery"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Quick Access Section -->
+            <TextBlock Text="Quick Access"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimary}"
+                       Margin="0,0,0,12" />
+
+            <UniformGrid Columns="4" Margin="0,0,0,20">
+                <Border Background="{StaticResource CardBackground}"
+                        BorderBrush="#2A2A2A"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Margin="0,0,10,0"
+                        Padding="16">
+                    <Button Style="{StaticResource BaseButton}"
+                            Command="{Binding LaunchLegacyDSXCommand}"
+                            BorderThickness="0"
+                            HorizontalContentAlignment="Stretch">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Width="40" Height="40"
+                                    Background="#0A2A22"
+                                    CornerRadius="10"
+                                    Margin="0,0,0,10">
+                                <TextBlock Text="&#xE768;"
+                                           FontFamily="{StaticResource IconFontFamily}"
+                                           FontSize="18"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Launch DSX v2"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Open legacy version"
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+
+                <Border Background="{StaticResource CardBackground}"
+                        BorderBrush="#2A2A2A"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Margin="10,0,10,0"
+                        Padding="16">
+                    <Button Style="{StaticResource BaseButton}"
+                            Command="{Binding OpenDiscordCommand}"
+                            BorderThickness="0"
+                            HorizontalContentAlignment="Stretch">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Width="40" Height="40"
+                                    Background="#1A1030"
+                                    CornerRadius="10"
+                                    Margin="0,0,0,10">
+                                <TextBlock Text="&#xE8BD;"
+                                           FontFamily="{StaticResource IconFontFamily}"
+                                           FontSize="18"
+                                           Foreground="{StaticResource NeonPurple}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Open Discord"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Community server"
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+
+                <Border Background="{StaticResource CardBackground}"
+                        BorderBrush="#2A2A2A"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Margin="10,0,10,0"
+                        Padding="16">
+                    <Button Style="{StaticResource BaseButton}"
+                            Command="{Binding OpenChangelogCommand}"
+                            BorderThickness="0"
+                            HorizontalContentAlignment="Stretch">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Width="40" Height="40"
+                                    Background="#0A1A2A"
+                                    CornerRadius="10"
+                                    Margin="0,0,0,10">
+                                <TextBlock Text="&#xE8FD;"
+                                           FontFamily="{StaticResource IconFontFamily}"
+                                           FontSize="18"
+                                           Foreground="{StaticResource NeonBlue}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Open Changelog"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="What's new"
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+
+                <Border Background="{StaticResource CardBackground}"
+                        BorderBrush="#2A2A2A"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Margin="10,0,0,0"
+                        Padding="16">
+                    <Button Style="{StaticResource BaseButton}"
+                            Command="{Binding ActivateSteamBigPictureCommand}"
+                            BorderThickness="0"
+                            HorizontalContentAlignment="Stretch">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border Width="40" Height="40"
+                                    Background="#2A0A1A"
+                                    CornerRadius="10"
+                                    Margin="0,0,0,10">
+                                <TextBlock Text="&#xE7FC;"
+                                           FontFamily="{StaticResource IconFontFamily}"
+                                           FontSize="18"
+                                           Foreground="{StaticResource NeonPink}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Big Picture Mode"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Steam overlay"
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextMuted}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+            </UniformGrid>
+
+            <!-- DSX+ Status -->
+            <Border Style="{StaticResource CardBorder}" Margin="0,0,0,20" Padding="24"
+                    CornerRadius="12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Width="44" Height="44"
+                            Background="#0D0D0D"
+                            CornerRadius="10"
+                            Margin="0,0,16,0">
+                        <TextBlock Text="&#xE8C0;"
+                                   FontFamily="{StaticResource IconFontFamily}"
+                                   FontSize="18"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="DSX+ Status"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <Border Background="{StaticResource AccentBrush}"
+                                    CornerRadius="4"
+                                    Padding="8,2"
+                                    Margin="10,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Visibility="{Binding IsDSXPlusOwner, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="ACTIVE"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="Black" />
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="Sync your DSX+ license for Bluetooth audio haptics and more"
+                                   FontSize="12"
+                                   Foreground="{StaticResource TextMuted}"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding SyncDSXPlusCommand}"
+                            Content="Sync"
+                            Padding="24,8"
+                            VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Notifications Section -->
+            <TextBlock Text="Notifications"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextPrimary}"
+                       Margin="0,0,0,12" />
+
+            <Border Style="{StaticResource CardBorder}" MinHeight="180"
+                    CornerRadius="12" Padding="16">
+                <ScrollViewer Style="{StaticResource DSXScrollViewer}"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="NotificationList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#141414"
+                                        CornerRadius="8"
+                                        Padding="14,10"
+                                        Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0"
+                                                Width="32" Height="32"
+                                                Background="#0A2A22"
+                                                CornerRadius="8"
+                                                Margin="0,0,12,0">
+                                            <TextBlock Text="&#xE7E7;"
+                                                       FontFamily="{StaticResource IconFontFamily}"
+                                                       FontSize="13"
+                                                       Foreground="{StaticResource AccentBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Message}"
+                                                   Foreground="{StaticResource TextPrimary}"
+                                                   FontSize="13"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding Timestamp}"
+                                                   Foreground="{StaticResource TextMuted}"
+                                                   FontSize="11"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0,0,0" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Footer -->
+            <StackPanel Margin="0,20,0,0" HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                <TextBlock Text="DualSenseX "
+                           Foreground="{StaticResource TextMuted}"
+                           FontSize="11" />
+                <TextBlock Text="{Binding AppVersion, Mode=OneWay}"
+                           Foreground="{StaticResource TextSecondary}"
+                           FontSize="11" />
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

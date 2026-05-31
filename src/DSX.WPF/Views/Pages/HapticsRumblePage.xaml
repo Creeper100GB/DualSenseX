@@ -1,0 +1,580 @@
+<UserControl x:Class="DSX.WPF.Views.Pages.HapticsRumblePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:DSX.WPF.Controls"
+             xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             mc:Ignorable="d"
+             d:DesignWidth="900" d:DesignHeight="900">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,0,0,32">
+
+            <!-- Page Header -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                <Border Width="4" Height="24"
+                        Background="{StaticResource AccentBrush}"
+                        CornerRadius="2"
+                        Margin="0,0,12,0"
+                        VerticalAlignment="Center" />
+                <TextBlock Text="Haptics &amp; Rumble"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimary}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Standard Rumble -->
+            <Border Background="{StaticResource CardBackground}"
+                    BorderBrush="#2A2A2A"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="24"
+                    Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                        <Border Width="4" Height="20"
+                                Background="{StaticResource AccentBrush}"
+                                CornerRadius="2"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center" />
+                        <TextBlock Text="Standard Rumble"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextPrimary}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <TextBlock Text="Large Motor (Low Frequency)"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               Margin="0,0,0,6" />
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Slider Style="{StaticResource DSXSlider}"
+                                Value="{Binding LargeMotorIntensity}"
+                                Minimum="0" Maximum="100" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding LargeMotorIntensity, StringFormat='{}{0:F0}%'}"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="12"
+                                   Width="44" TextAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0" />
+                    </Grid>
+
+                    <TextBlock Text="Small Motor (High Frequency)"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               Margin="0,0,0,6" />
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Slider Style="{StaticResource DSXSlider}"
+                                Value="{Binding SmallMotorIntensity}"
+                                Minimum="0" Maximum="100" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding SmallMotorIntensity, StringFormat='{}{0:F0}%'}"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="12"
+                                   Width="44" TextAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0" />
+                    </Grid>
+
+                    <Button Style="{StaticResource PrimaryButton}"
+                            Command="{Binding TestRumbleCommand}"
+                            Content="&#xE768;  Test Rumble"
+                            HorizontalAlignment="Left"
+                            Padding="20,8" />
+                </StackPanel>
+            </Border>
+
+            <!-- Audio Haptics (USB/Wired) -->
+            <Border Background="{StaticResource CardBackground}"
+                    BorderBrush="#2A2A2A"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="24"
+                    Margin="0,0,0,16">
+                <StackPanel>
+                    <Grid Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="4" Height="20"
+                                    Background="{StaticResource NeonBlue}"
+                                    CornerRadius="2"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Text="Audio Haptics"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="(USB / Wired)"
+                                       FontSize="11"
+                                       Foreground="{StaticResource TextMuted}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0" />
+                        </StackPanel>
+                        <controls:ToggleSwitch HorizontalAlignment="Right"
+                                               IsChecked="{Binding AudioHapticsEnabled}"
+                                               Width="44" Height="24" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Delay"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding AudioDelayMs}"
+                                        Minimum="1" Maximum="20" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding AudioDelayMs, StringFormat='{}{0} ms'}"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="12"
+                                           Width="50" TextAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="24,0,0,0" Width="200">
+                            <TextBlock Text="Audio Device"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0"
+                                          Style="{StaticResource DSXComboBox}"
+                                          ItemsSource="{Binding AvailableAudioDevices}"
+                                          SelectedItem="{Binding SelectedAudioDevice}" />
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding RefreshDevicesCommand}"
+                                        Content="Refresh"
+                                        Margin="8,0,0,0"
+                                        Padding="12,6" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Volume Controls"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,12" />
+
+                    <UniformGrid Columns="4" Margin="0,0,0,8">
+                        <StackPanel Margin="0,0,12,0">
+                            <TextBlock Text="Left Motor"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6" />
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding LeftMotorVolume}"
+                                    Minimum="0" Maximum="100"
+                                    Orientation="Vertical"
+                                    Height="100"
+                                    HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding LeftMotorVolume, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Margin="12,0,12,0">
+                            <TextBlock Text="Right Motor"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6" />
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding RightMotorVolume}"
+                                    Minimum="0" Maximum="100"
+                                    Orientation="Vertical"
+                                    Height="100"
+                                    HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding RightMotorVolume, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Margin="12,0,12,0">
+                            <TextBlock Text="Headset"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6" />
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding HeadsetVolume}"
+                                    Minimum="0" Maximum="100"
+                                    Orientation="Vertical"
+                                    Height="100"
+                                    HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding HeadsetVolume, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+
+                        <StackPanel Margin="12,0,0,0">
+                            <TextBlock Text="Speaker"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,6" />
+                            <Slider Style="{StaticResource DSXSlider}"
+                                    Value="{Binding SpeakerVolume}"
+                                    Minimum="0" Maximum="100"
+                                    Orientation="Vertical"
+                                    Height="100"
+                                    HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding SpeakerVolume, StringFormat='{}{0:F0}'}"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,6,0,0" />
+                        </StackPanel>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- BT Audio / Haptics (DSX+) - Active Controls -->
+            <Border Background="{StaticResource CardBackground}"
+                    BorderBrush="#2A2A2A"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="24"
+                    Margin="0,0,0,16"
+                    >
+                <StackPanel>
+                    <Grid Margin="0,0,0,20">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="4" Height="20"
+                                    Background="{StaticResource NeonPurple}"
+                                    CornerRadius="2"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center" />
+                            <TextBlock Text="BT Audio / Haptics"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}"
+                                       VerticalAlignment="Center" />
+                            <Border Background="{StaticResource AccentBrush}"
+                                    CornerRadius="4"
+                                    Padding="8,2"
+                                    Margin="10,0,0,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="DSX+"
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="Black" />
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <Ellipse x:Name="BTHapticsStatusDot"
+                                     Width="10" Height="10"
+                                     Fill="{StaticResource ErrorBrush}"
+                                     VerticalAlignment="Center"
+                                     Margin="0,0,8,0" />
+                            <TextBlock x:Name="BTHapticsStatusText"
+                                       Text="{Binding BTHapticsStatus}"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,16,0" />
+                            <Button Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding StartBTHapticsCommand}"
+                                    Content="&#xE768;  Start"
+                                    Padding="20,8"
+                                    x:Name="BTStartButton">
+                                <Button.Visibility>
+                                    <Binding Path="IsBTHapticsRunning" Converter="{StaticResource InverseBoolToVisibilityConverter}" />
+                                </Button.Visibility>
+                            </Button>
+                            <Button Style="{StaticResource DangerButton}"
+                                    Command="{Binding StopBTHapticsCommand}"
+                                    Content="&#xE71A;  Stop"
+                                    Padding="20,8"
+                                    Margin="8,0,0,0"
+                                    x:Name="BTStopButton">
+                                <Button.Visibility>
+                                    <Binding Path="IsBTHapticsRunning" Converter="{StaticResource BoolToVisibilityConverter}" />
+                                </Button.Visibility>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="Audio Source Mode"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <ComboBox Style="{StaticResource DSXComboBox}"
+                                      SelectedItem="{Binding AudioSourceMode}">
+                                <ComboBoxItem Content="Sound Capture" />
+                                <ComboBoxItem Content="File Playback" />
+                                <ComboBoxItem Content="vDS Audio" />
+                                <ComboBoxItem Content="Mix and Match" />
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <TextBlock Text="Haptics Source Mode"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <ComboBox Style="{StaticResource DSXComboBox}"
+                                      SelectedItem="{Binding HapticsSourceMode}">
+                                <ComboBoxItem Content="Sound Waves" />
+                                <ComboBoxItem Content="System Capture" />
+                                <ComboBoxItem Content="File Playback" />
+                                <ComboBoxItem Content="vDS Audio" />
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="Left Motor Intensity"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding BTLeftMotorIntensity}"
+                                        Minimum="0" Maximum="100" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding BTLeftMotorIntensity, StringFormat='{}{0:F0}%'}"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="12"
+                                           Width="44" TextAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <TextBlock Text="Right Motor Intensity"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding BTRightMotorIntensity}"
+                                        Minimum="0" Maximum="100" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding BTRightMotorIntensity, StringFormat='{}{0:F0}%'}"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="12"
+                                           Width="44" TextAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6">
+                                <Run Text="RSSI Signal Quality: " />
+                                <Run Text="{Binding BTRSSI, Mode=OneWay, StringFormat='{}{0} dBm'}"
+                                     Foreground="{StaticResource AccentBrush}"
+                                     FontWeight="SemiBold" />
+                            </TextBlock>
+                            <ProgressBar Value="{Binding BTRSSI}"
+                                         Minimum="-100" Maximum="0"
+                                         Style="{StaticResource DSXProgressBar}"
+                                         Height="6" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="24,0,0,0" Width="220">
+                            <TextBlock Text="Latency Compensation"
+                                       Foreground="{StaticResource TextSecondary}"
+                                       FontSize="13"
+                                       Margin="0,0,0,6" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Slider Style="{StaticResource DSXSlider}"
+                                        Value="{Binding BTLatencyMs}"
+                                        Minimum="0" Maximum="100" />
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding BTLatencyMs, StringFormat='{}{0} ms'}"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="12"
+                                           Width="50" TextAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Audio File (for File Playback mode) -->
+                    <StackPanel>
+                        <TextBlock Text="Audio File"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="13"
+                                   Margin="0,0,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Style="{StaticResource DSXTextBox}"
+                                     Text="{Binding AudioFilePath}"
+                                     IsReadOnly="True" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding BrowseAudioFileCommand}"
+                                    Content="Browse"
+                                    Margin="8,0,0,0"
+                                    Padding="16,6" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- DSX+ Upgrade Prompt (when not owned) -->
+            <Border Background="#141414"
+                    BorderBrush="#2A2A2A"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="40,32"
+                    Margin="0,0,0,16"
+                    Visibility="{Binding ShowBTHaptics, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center" MaxWidth="480">
+                    <Border Width="56" Height="56"
+                            Background="#1A0A2A"
+                            CornerRadius="14"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,16">
+                        <TextBlock Text="&#xE8C0;"
+                                   FontFamily="{StaticResource IconFontFamily}"
+                                   FontSize="24"
+                                   Foreground="{StaticResource NeonPurple}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <TextBlock Text="BT Audio / Haptics"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource TextPrimary}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,4" />
+
+                    <Border Background="{StaticResource NeonPurple}"
+                            CornerRadius="4"
+                            Padding="10,3"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,16">
+                        <TextBlock Text="DSX+ EXCLUSIVE"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="White" />
+                    </Border>
+
+                    <TextBlock Text="Unlock Bluetooth audio haptics, advanced motor control,"
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="low-latency audio streaming, and more with DSX+."
+                               Foreground="{StaticResource TextSecondary}"
+                               FontSize="13"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20" />
+
+                    <Border Background="{StaticResource AccentBrush}"
+                            CornerRadius="8"
+                            Padding="24,12"
+                            HorizontalAlignment="Center"
+                            Cursor="Hand">
+                        <Border.Effect>
+                            <DropShadowEffect Color="{StaticResource AccentColor}"
+                                              BlurRadius="16" ShadowDepth="0" Opacity="0.4" />
+                        </Border.Effect>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8C0;"
+                                       FontFamily="{StaticResource IconFontFamily}"
+                                       FontSize="14"
+                                       Foreground="Black"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0" />
+                            <TextBlock Text="Get DSX+"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="Black"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

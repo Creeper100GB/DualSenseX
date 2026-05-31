@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DSX.Console/DSX.Console.csproj" />
+  <Project Path="DSX.Core/DSX.Core.csproj" />
+  <Project Path="DSX.Launcher/DSX.Launcher.csproj" />
+  <Project Path="DSX.WPF/DSX.WPF.csproj" />
+</Solution>
