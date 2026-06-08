@@ -12,6 +12,7 @@ namespace DSX.Core.ViewModels;
 public partial class HapticsRumbleViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
+    private bool _suppressToggle;
 
     [ObservableProperty]
     private double _largeMotorIntensity;
@@ -21,6 +22,27 @@ public partial class HapticsRumbleViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _audioHapticsEnabled;
+
+    partial void OnAudioHapticsEnabledChanged(bool value)
+    {
+        if (_suppressToggle) return;
+
+        if (value)
+        {
+            _main.AudioService.StartCapture(SelectedAudioDevice);
+            if (_main.AudioService.SimpleHaptics != null)
+            {
+                _main.AudioService.SimpleHaptics.Enabled = true;
+                UpdateSimpleHapticsConfig();
+            }
+        }
+        else
+        {
+            if (_main.AudioService.SimpleHaptics != null)
+                _main.AudioService.SimpleHaptics.Enabled = false;
+            _main.AudioService.StopCapture();
+        }
+    }
 
     [ObservableProperty]
     private int _audioDelayMs = 5;
@@ -230,6 +252,8 @@ public partial class HapticsRumbleViewModel : ObservableObject
         var profile = _main.ActiveProfile;
         if (profile == null) return;
 
+        _suppressToggle = true;
+
         LargeMotorIntensity = profile.RumbleConfig.LargeMotorIntensity;
         SmallMotorIntensity = profile.RumbleConfig.SmallMotorIntensity;
         AudioHapticsEnabled = profile.AudioHapticsConfig.Enabled;
@@ -258,6 +282,7 @@ public partial class HapticsRumbleViewModel : ObservableObject
             _ => "Stereo"
         };
         UpdateSimpleHapticsConfig();
+        _suppressToggle = false;
     }
 
     private void UpdateControllerInfo()
@@ -276,27 +301,6 @@ public partial class HapticsRumbleViewModel : ObservableObject
         _main.ControllerService.SetRumble(LargeMotorIntensity, SmallMotorIntensity);
         await Task.Delay(500);
         _main.ControllerService.SetRumble(0, 0);
-    }
-
-    [RelayCommand]
-    private void ToggleAudioHaptics()
-    {
-        AudioHapticsEnabled = !AudioHapticsEnabled;
-        if (AudioHapticsEnabled)
-        {
-            _main.AudioService.StartCapture(SelectedAudioDevice);
-            if (_main.AudioService.SimpleHaptics != null)
-            {
-                _main.AudioService.SimpleHaptics.Enabled = true;
-                UpdateSimpleHapticsConfig();
-            }
-        }
-        else
-        {
-            if (_main.AudioService.SimpleHaptics != null)
-                _main.AudioService.SimpleHaptics.Enabled = false;
-            _main.AudioService.StopCapture();
-        }
     }
 
     [RelayCommand]
