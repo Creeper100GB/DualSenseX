@@ -125,12 +125,29 @@ public partial class LEDViewModel : ObservableObject
         _main.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(MainViewModel.ActiveProfile))
+            {
                 LoadFromProfile();
+                AutoApplyLED();
+            }
             if (e.PropertyName == nameof(MainViewModel.ActiveController))
+            {
                 UpdateControllerType();
+                AutoApplyLED();
+            }
         };
+        main.ControllerService.ControllerConnected += (s, e) => AutoApplyLED();
         LoadFromProfile();
         UpdateControllerType();
+        AutoApplyLED();
+    }
+
+    private void AutoApplyLED()
+    {
+        if (_main.ControllerService.ActiveController?.IsConnected != true)
+            return;
+        ApplyTouchpadLED();
+        ApplyPlayerLED();
+        ApplyMuteLED();
     }
 
     private void UpdateControllerType()

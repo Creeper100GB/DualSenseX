@@ -22,6 +22,9 @@ public sealed class AudioService : IAudioService, IDisposable
     private readonly object _btHapticsLock = new();
     private BTHapticsPipeline? _btHaptics;
     private SimpleHapticsPipeline? _simpleHaptics;
+    private DateTime _lastCaptureErrorLog = DateTime.MinValue;
+    private int _captureErrorCount;
+    private volatile bool _captureFailed;
 
     private int _hapticsLogCounter;
 
@@ -270,6 +273,8 @@ public sealed class AudioService : IAudioService, IDisposable
     {
         lock (_captureLock)
         {
+            _captureFailed = false;
+            _captureErrorCount = 0;
             StopCaptureInternal();
 
             EnsureEnumerator();
@@ -378,7 +383,7 @@ public sealed class AudioService : IAudioService, IDisposable
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        if (_disposed)
+        if (_disposed || _captureFailed)
             return;
 
         try
@@ -387,7 +392,7 @@ public sealed class AudioService : IAudioService, IDisposable
             int channelCount = _capture?.WaveFormat.Channels ?? 2;
             int sampleCount = e.BytesRecorded / (bytesPerSample * channelCount);
 
-            if (sampleCount == 0)
+            if (sampleCount == 0 || _capture == null)
                 return;
 
             _simpleHaptics?.Process(e.Buffer, e.BytesRecorded, bytesPerSample, channelCount);
@@ -431,6 +436,10 @@ public sealed class AudioService : IAudioService, IDisposable
 
             AudioDataCaptured?.Invoke(this, monoSamples);
         }
+        catch (ObjectDisposedException)
+        {
+            _captureFailed = true;
+        }
         catch
         {
         }
@@ -441,24 +450,32 @@ public sealed class AudioService : IAudioService, IDisposable
         if (_disposed)
             return;
 
+        _simpleHaptics?.Stop();
+
         if (e.Exception != null)
         {
-            ControllerService.LogAction?.Invoke($"[Audio] Capture stopped with error: {e.Exception.Message}");
+            _captureErrorCount++;
+            var now = DateTime.UtcNow;
+            if ((now - _lastCaptureErrorLog).TotalSeconds >= 5)
+            {
+                ControllerService.LogAction?.Invoke(
+                    $"[Audio] Capture errors: {_captureErrorCount} total, last: {e.Exception.Message}");
+                _lastCaptureErrorLog = now;
+            }
             _capture?.Dispose();
             _capture = null;
+            _captureFailed = true;
             return;
         }
 
+        if (_captureFailed)
+            return;
+
         try
         {
-            if (_deviceEnumerator?.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).Any() == true)
-                _capture?.StartRecording();
+            StopCaptureInternal();
         }
-        catch
-        {
-            _capture?.Dispose();
-            _capture = null;
-        }
+        catch { }
     }
 
     private void OnPlaybackStopped(object? sender, StoppedEventArgs e)

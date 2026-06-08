@@ -162,8 +162,7 @@ public sealed class DualSenseOutputReport
             var report = new byte[USBOutputReportSize];
             report[0] = USBOutputReportId;
             Buffer.BlockCopy(_state, 0, report, 1, OutputPayloadSize);
-            _state[ValidFlag0] = (byte)(_state[ValidFlag0] & ~(HapticsSelect | SpeakerVolumeEnable | MicVolumeEnable | AudioControlEnable));
-            _state[ValidFlag1] = (byte)(_state[ValidFlag1] & ~AudioControl2Enable);
+            _state[ValidFlag0] = (byte)(_state[ValidFlag0] & ~(SpeakerVolumeEnable | MicVolumeEnable | AudioControlEnable));
             _state[ValidFlag2] = 0;
             return report;
         }
@@ -178,8 +177,7 @@ public sealed class DualSenseOutputReport
             report[1] = (byte)(((sequence & 0x0F) << 4) | BTOutputTag);
             Buffer.BlockCopy(_state, 0, report, 2, OutputPayloadSize);
             DSXCrc32.WriteCrc(report);
-            _state[ValidFlag0] = (byte)(_state[ValidFlag0] & ~(HapticsSelect | SpeakerVolumeEnable | MicVolumeEnable | AudioControlEnable));
-            _state[ValidFlag1] = (byte)(_state[ValidFlag1] & ~AudioControl2Enable);
+            _state[ValidFlag0] = (byte)(_state[ValidFlag0] & ~(SpeakerVolumeEnable | MicVolumeEnable | AudioControlEnable));
             _state[ValidFlag2] = 0;
             return report;
         }

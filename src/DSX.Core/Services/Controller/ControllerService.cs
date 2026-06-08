@@ -22,6 +22,7 @@ public sealed class ControllerService : IControllerService, IDisposable
     private volatile string? _activeControllerId;
     private byte _btSequence;
     private LEDMode _activeLEDMode = LEDMode.Off;
+    private PlayerLEDMode _activePlayerLEDMode = PlayerLEDMode.Off;
     private RainbowSpeed _rainbowSpeed = RainbowSpeed.Medium;
     private double _rainbowHue;
     private TouchpadLEDConfig? _activeLEDConfig;
@@ -289,12 +290,33 @@ public sealed class ControllerService : IControllerService, IDisposable
                 var pct = _lastBatteryLevel;
                 byte br, bg, bb;
                 if (pct < 30)
-                    { br = _activeLEDConfig.BatteryLowRed; bg = _activeLEDConfig.BatteryLowGreen; bb = _activeLEDConfig.BatteryLowBlue; }
+                {
+                    br = _activeLEDConfig.BatteryLowRed;
+                    bg = _activeLEDConfig.BatteryLowGreen;
+                    bb = _activeLEDConfig.BatteryLowBlue;
+                    if (br == 0 && bg == 0 && bb == 0) { br = 255; bg = 0; bb = 0; }
+                }
                 else if (pct < 60)
-                    { br = _activeLEDConfig.BatteryMedRed; bg = _activeLEDConfig.BatteryMedGreen; bb = _activeLEDConfig.BatteryMedBlue; }
+                {
+                    br = _activeLEDConfig.BatteryMedRed;
+                    bg = _activeLEDConfig.BatteryMedGreen;
+                    bb = _activeLEDConfig.BatteryMedBlue;
+                    if (br == 0 && bg == 0 && bb == 0) { br = 255; bg = 255; bb = 0; }
+                }
                 else
-                    { br = _activeLEDConfig.BatteryFullRed; bg = _activeLEDConfig.BatteryFullGreen; bb = _activeLEDConfig.BatteryFullBlue; }
+                {
+                    br = _activeLEDConfig.BatteryFullRed;
+                    bg = _activeLEDConfig.BatteryFullGreen;
+                    bb = _activeLEDConfig.BatteryFullBlue;
+                    if (br == 0 && bg == 0 && bb == 0) { br = 0; bg = 0; bb = 255; }
+                }
                 report.SetLightbar(br, bg, bb);
+
+                if (_activePlayerLEDMode == PlayerLEDMode.BatteryLevel)
+                {
+                    var mask = BatteryToPlayerMask(pct);
+                    report.SetPlayerLEDs(mask);
+                }
                 break;
 
             default:
@@ -338,11 +360,26 @@ public sealed class ControllerService : IControllerService, IDisposable
             PlayerLEDMode.Player3 => P.PlayerLEDs.Player3,
             PlayerLEDMode.Player4 => P.PlayerLEDs.Player4,
             PlayerLEDMode.Player5 => P.PlayerLEDs.Player5,
+            PlayerLEDMode.BatteryLevel => BatteryToPlayerMask(_lastBatteryLevel),
             _ => 0x00
         };
 
+        _activePlayerLEDMode = config.Mode;
         report.SetPlayerLEDs(mask);
         SendReport();
+    }
+
+    private static byte BatteryToPlayerMask(double pct)
+    {
+        return pct switch
+        {
+            <= 0 => 0x00,
+            <= 20 => P.PlayerLEDs.Player1,
+            <= 40 => P.PlayerLEDs.Player2,
+            <= 60 => P.PlayerLEDs.Player3,
+            <= 80 => P.PlayerLEDs.Player4,
+            _ => P.PlayerLEDs.Player5
+        };
     }
 
     public void SetMuteLEDConfig(MuteLEDConfig config)
