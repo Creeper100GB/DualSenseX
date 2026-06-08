@@ -125,15 +125,9 @@ public partial class LEDViewModel : ObservableObject
         _main.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(MainViewModel.ActiveProfile))
-            {
                 LoadFromProfile();
-                AutoApplyLED();
-            }
             if (e.PropertyName == nameof(MainViewModel.ActiveController))
-            {
                 UpdateControllerType();
-                AutoApplyLED();
-            }
         };
         main.ControllerService.ControllerConnected += (s, e) => AutoApplyLED();
         LoadFromProfile();
@@ -146,7 +140,6 @@ public partial class LEDViewModel : ObservableObject
         if (_main.ControllerService.ActiveController?.IsConnected != true)
             return;
 
-        // Snapshot the configs on the calling thread (usually UI thread)
         var touchpadConfig = new TouchpadLEDConfig
         {
             Mode = SelectedTouchpadMode,
@@ -182,17 +175,6 @@ public partial class LEDViewModel : ObservableObject
             UnmutedBlue = UnmutedBlue
         };
 
-        // Update profile (lightweight, can stay on caller thread)
-        var profile = _main.ActiveProfile;
-        if (profile != null)
-        {
-            profile.TouchpadLEDConfig = touchpadConfig;
-            profile.PlayerLEDConfig = playerConfig;
-            profile.MuteLEDConfig = muteConfig;
-            _main.ProfileService.UpdateProfile(profile);
-        }
-
-        // HID writes can block up to 500ms each — offload to background thread
         Task.Run(() =>
         {
             _main.ControllerService.SetLEDConfig(touchpadConfig);
