@@ -599,14 +599,24 @@ public sealed class ControllerService : IControllerService, IDisposable
             ControllerConnected?.Invoke(this, info);
             Log($"TryOpenDevice: ControllerConnected event fired for {info.Name}");
 
+            if (info.Connection == ConnectionType.USB && _outputReports.TryGetValue(device.DevicePath, out var usbReport))
+            {
+                usbReport.RouteToSpeaker();
+                usbReport.SetSpeakerVolume(100);
+                try
+                {
+                    var buf = usbReport.BuildUSBReport();
+                    stream.Write(buf);
+                    Log($"TryOpenDevice: Audio routed to speaker for {info.Name}");
+                }
+                catch (Exception ax)
+                {
+                    Log($"TryOpenDevice: Audio routing write failed: {ax.Message}");
+                }
+            }
+
             if (info.Features.AdaptiveTriggers)
                 SendTriggerCalibration();
-
-            if (info.Connection == ConnectionType.USB)
-            {
-                RouteAudioToSpeaker();
-                SetSpeakerVolume(100);
-            }
         }
         catch (Exception ex)
         {
