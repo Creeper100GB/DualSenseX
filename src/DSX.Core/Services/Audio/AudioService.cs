@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using DSX.Core.Enums;
 using DSX.Core.Interfaces;
+using DSX.Core.Services.Controller;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -40,6 +41,15 @@ public sealed class AudioService : IAudioService, IDisposable
         }
     }
 
+    public IReadOnlyList<string> AvailableDeviceNames
+    {
+        get
+        {
+            RefreshDevices();
+            return _devices.Values.ToList().AsReadOnly();
+        }
+    }
+
     public string DefaultDeviceId
     {
         get
@@ -48,12 +58,35 @@ public sealed class AudioService : IAudioService, IDisposable
             try
             {
                 var defaultDevice = _deviceEnumerator!.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                return defaultDevice?.ID ?? string.Empty;
+                string? id = defaultDevice?.ID ?? string.Empty;
+                defaultDevice?.Dispose();
+                return id;
             }
             catch
             {
                 return string.Empty;
             }
+        }
+    }
+
+    public string GetDeviceIdFromName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return string.Empty;
+        foreach (var kvp in _devices)
+        {
+            if (kvp.Value == name)
+                return kvp.Key;
+        }
+        return DefaultDeviceId;
+    }
+
+    public string DefaultDeviceName
+    {
+        get
+        {
+            string id = DefaultDeviceId;
+            return _devices.TryGetValue(id, out var name) ? name : string.Empty;
         }
     }
 
@@ -405,13 +438,26 @@ public sealed class AudioService : IAudioService, IDisposable
 
     private void OnRecordingStopped(object? sender, StoppedEventArgs e)
     {
-        if (!_disposed)
+        if (_disposed)
+            return;
+
+        if (e.Exception != null)
         {
-            try
-            {
+            ControllerService.LogAction?.Invoke($"[Audio] Capture stopped with error: {e.Exception.Message}");
+            _capture?.Dispose();
+            _capture = null;
+            return;
+        }
+
+        try
+        {
+            if (_deviceEnumerator?.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active).Any() == true)
                 _capture?.StartRecording();
-            }
-            catch { }
+        }
+        catch
+        {
+            _capture?.Dispose();
+            _capture = null;
         }
     }
 
@@ -423,6 +469,9 @@ public sealed class AudioService : IAudioService, IDisposable
 
     private void StopCaptureInternal()
     {
+        if (_simpleHaptics != null)
+            _simpleHaptics.Enabled = false;
+
         if (_capture != null)
         {
             try

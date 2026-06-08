@@ -11,7 +11,10 @@ public interface IAudioService
     event EventHandler<string>? BTHapticsError;
 
     IReadOnlyList<string> AvailableDevices { get; }
+    IReadOnlyList<string> AvailableDeviceNames { get; }
     string DefaultDeviceId { get; }
+    string DefaultDeviceName { get; }
+    string GetDeviceIdFromName(string name);
     bool IsBTHapticsRunning { get; }
     string BTHapticsStatus { get; }
     Services.Audio.SimpleHapticsPipeline? SimpleHaptics { get; }

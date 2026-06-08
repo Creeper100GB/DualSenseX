@@ -12,6 +12,7 @@ public sealed class DualSenseOutputReport
 {
     private readonly byte[] _state = new byte[OutputPayloadSize];
     private readonly object _lock = new();
+    private bool _lightbarInitialized;
 
     public void SetRumble(double leftMotor, double rightMotor)
     {
@@ -28,8 +29,12 @@ public sealed class DualSenseOutputReport
         lock (_lock)
         {
             _state[ValidFlag1] |= LightbarControl | PlayerIndicatorControl;
-            _state[ValidFlag2] |= LightbarSetupControl;
-            _state[LightbarSetup] = 0x02;
+            if (!_lightbarInitialized)
+            {
+                _state[ValidFlag2] |= LightbarSetupControl;
+                _state[LightbarSetup] = 0x02;
+                _lightbarInitialized = true;
+            }
             _state[LightbarRed] = r;
             _state[LightbarGreen] = g;
             _state[LightbarBlue] = b;
@@ -80,6 +85,7 @@ public sealed class DualSenseOutputReport
         lock (_lock)
         {
             Array.Clear(_state, 0, _state.Length);
+            _lightbarInitialized = false;
         }
     }
 
@@ -156,6 +162,9 @@ public sealed class DualSenseOutputReport
             var report = new byte[USBOutputReportSize];
             report[0] = USBOutputReportId;
             Buffer.BlockCopy(_state, 0, report, 1, OutputPayloadSize);
+            _state[ValidFlag0] = 0;
+            _state[ValidFlag1] = 0;
+            _state[ValidFlag2] = 0;
             return report;
         }
     }
@@ -168,6 +177,9 @@ public sealed class DualSenseOutputReport
             report[0] = BTOutputReportId;
             report[1] = (byte)(((sequence & 0x0F) << 4) | BTOutputTag);
             Buffer.BlockCopy(_state, 0, report, 2, OutputPayloadSize);
+            _state[ValidFlag0] = 0;
+            _state[ValidFlag1] = 0;
+            _state[ValidFlag2] = 0;
             DSXCrc32.WriteCrc(report);
             return report;
         }

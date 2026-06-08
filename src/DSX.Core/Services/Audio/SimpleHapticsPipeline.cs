@@ -20,6 +20,8 @@ public sealed class SimpleHapticsPipeline
     private double _lastSentLeft = -1;
     private double _lastSentRight = -1;
     private const double ChangeThreshold = 2.0;
+    private bool _wasSilent = true;
+    private const double SilenceThreshold = 0.008;
 
     public SimpleHapticsPipeline(IControllerService controllerService)
     {
@@ -36,6 +38,9 @@ public sealed class SimpleHapticsPipeline
             {
                 _smoothLeft = 0;
                 _smoothRight = 0;
+                _lastSentLeft = -1;
+                _lastSentRight = -1;
+                _throttle.Restart();
                 _controllerService.SetRumble(0, 0);
             }
         }
@@ -102,6 +107,24 @@ public sealed class SimpleHapticsPipeline
             ? System.Math.Sqrt(sumR / System.Math.Max(1, countR))
             : rmsL;
 
+        bool isSilent = rmsL < SilenceThreshold && rmsR < SilenceThreshold;
+
+        if (isSilent)
+        {
+            if (!_wasSilent)
+            {
+                _wasSilent = true;
+                _smoothLeft = 0;
+                _smoothRight = 0;
+                _lastSentLeft = -1;
+                _lastSentRight = -1;
+                _controllerService.SetRumble(0, 0);
+            }
+            return;
+        }
+
+        _wasSilent = false;
+
         double motorL, motorR;
         switch (_syncMode)
         {
@@ -136,12 +159,14 @@ public sealed class SimpleHapticsPipeline
 
         double leftPct = System.Math.Min(100, System.Math.Max(0, _smoothLeft * 100));
         double rightPct = System.Math.Min(100, System.Math.Max(0, _smoothRight * 100));
+        leftPct = System.Math.Sqrt(leftPct / 100.0) * 100.0;
+        rightPct = System.Math.Sqrt(rightPct / 100.0) * 100.0;
 
         long elapsed = _throttle.ElapsedMilliseconds;
         double deltaL = System.Math.Abs(leftPct - _lastSentLeft);
         double deltaR = System.Math.Abs(rightPct - _lastSentRight);
 
-        if (elapsed < MinIntervalMs && deltaL < ChangeThreshold && deltaR < ChangeThreshold && elapsed < 50)
+        if (elapsed < MinIntervalMs && deltaL < ChangeThreshold && deltaR < ChangeThreshold)
             return;
 
         _lastSentLeft = leftPct;

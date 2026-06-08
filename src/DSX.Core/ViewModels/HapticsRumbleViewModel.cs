@@ -29,7 +29,8 @@ public partial class HapticsRumbleViewModel : ObservableObject
 
         if (value)
         {
-            _main.AudioService.StartCapture(SelectedAudioDevice);
+            string deviceId = _main.AudioService.GetDeviceIdFromName(SelectedAudioDevice);
+            _main.AudioService.StartCapture(deviceId);
             if (_main.AudioService.SimpleHaptics != null)
             {
                 _main.AudioService.SimpleHaptics.Enabled = true;
@@ -168,15 +169,11 @@ public partial class HapticsRumbleViewModel : ObservableObject
 
     partial void OnLeftMotorVolumeChanged(double value)
     {
-        try { _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0)); }
-        catch { }
         UpdateSimpleHapticsConfig();
     }
 
     partial void OnRightMotorVolumeChanged(double value)
     {
-        try { _main.ControllerService.SetHeadphoneVolume((byte)(value * 0x7F / 100.0)); }
-        catch { }
         UpdateSimpleHapticsConfig();
     }
 
@@ -307,9 +304,9 @@ public partial class HapticsRumbleViewModel : ObservableObject
     private void RefreshDevices()
     {
         AvailableAudioDevices = new ObservableCollection<string>(
-            _main.AudioService.AvailableDevices);
+            _main.AudioService.AvailableDeviceNames);
         if (string.IsNullOrEmpty(SelectedAudioDevice) && AvailableAudioDevices.Count > 0)
-            SelectedAudioDevice = _main.AudioService.DefaultDeviceId;
+            SelectedAudioDevice = _main.AudioService.DefaultDeviceName;
     }
 
     [RelayCommand]
