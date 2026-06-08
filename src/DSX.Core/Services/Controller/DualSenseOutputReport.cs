@@ -162,9 +162,6 @@ public sealed class DualSenseOutputReport
             var report = new byte[USBOutputReportSize];
             report[0] = USBOutputReportId;
             Buffer.BlockCopy(_state, 0, report, 1, OutputPayloadSize);
-            _state[ValidFlag0] = 0;
-            _state[ValidFlag1] = 0;
-            _state[ValidFlag2] = 0;
             return report;
         }
     }
@@ -177,9 +174,6 @@ public sealed class DualSenseOutputReport
             report[0] = BTOutputReportId;
             report[1] = (byte)(((sequence & 0x0F) << 4) | BTOutputTag);
             Buffer.BlockCopy(_state, 0, report, 2, OutputPayloadSize);
-            _state[ValidFlag0] = 0;
-            _state[ValidFlag1] = 0;
-            _state[ValidFlag2] = 0;
             DSXCrc32.WriteCrc(report);
             return report;
         }
