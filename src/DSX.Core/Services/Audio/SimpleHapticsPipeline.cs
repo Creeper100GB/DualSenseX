@@ -13,15 +13,17 @@ public sealed class SimpleHapticsPipeline
     private VolumeSyncMode _syncMode = VolumeSyncMode.Stereo;
     private double _smoothLeft;
     private double _smoothRight;
-    private const double SmoothFactor = 0.25;
     private int _frameCount;
     private const int MinIntervalMs = 15;
     private readonly System.Diagnostics.Stopwatch _throttle = System.Diagnostics.Stopwatch.StartNew();
     private double _lastSentLeft = -1;
     private double _lastSentRight = -1;
-    private const double ChangeThreshold = 2.0;
+    private const double ChangeThreshold = 0.5;
     private bool _wasSilent = true;
-    private const double SilenceThreshold = 0.008;
+    private const double SilenceThreshold = 0.02;
+    private const double AttackAlpha = 0.4;
+    private const double ReleaseAlpha = 0.08;
+    private const double BassBoost = 1.5;
 
     public SimpleHapticsPipeline(IControllerService controllerService)
     {
@@ -154,13 +156,15 @@ public sealed class SimpleHapticsPipeline
         motorL *= _leftMotorVolume / 100.0;
         motorR *= _rightMotorVolume / 100.0;
 
-        _smoothLeft += SmoothFactor * (motorL - _smoothLeft);
-        _smoothRight += SmoothFactor * (motorR - _smoothRight);
+        double leftAlpha = motorL > _smoothLeft ? AttackAlpha : ReleaseAlpha;
+        double rightAlpha = motorR > _smoothRight ? AttackAlpha : ReleaseAlpha;
+        _smoothLeft += leftAlpha * (motorL - _smoothLeft);
+        _smoothRight += rightAlpha * (motorR - _smoothRight);
 
         double leftPct = System.Math.Min(100, System.Math.Max(0, _smoothLeft * 100));
         double rightPct = System.Math.Min(100, System.Math.Max(0, _smoothRight * 100));
-        leftPct = System.Math.Sqrt(leftPct / 100.0) * 100.0;
-        rightPct = System.Math.Sqrt(rightPct / 100.0) * 100.0;
+        leftPct = System.Math.Min(100, leftPct * (1.0 + BassBoost * 0.3));
+        rightPct = System.Math.Min(100, rightPct * 1.0);
 
         long elapsed = _throttle.ElapsedMilliseconds;
         double deltaL = System.Math.Abs(leftPct - _lastSentLeft);

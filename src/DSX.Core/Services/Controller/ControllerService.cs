@@ -152,6 +152,26 @@ public sealed class ControllerService : IControllerService, IDisposable
         SendReport();
     }
 
+    public void SendTriggerCalibration()
+    {
+        var info = ActiveController;
+        if (info == null || info.Type == ControllerType.DualShock4) return;
+
+        var report = GetActiveOutputReport();
+        if (report == null) return;
+
+        var calibrateData = DualSenseOutputReport.BuildTriggerBytes(new TriggerConfig
+        {
+            Mode = Enums.TriggerMode.Calibrate,
+            StartPosition = 255,
+            EndPosition = 255
+        });
+        report.SetAdaptiveTrigger(false, calibrateData);
+        report.SetAdaptiveTrigger(true, calibrateData);
+        SendReport();
+        Log($"SendTriggerCalibration: calibration sent for {info.Name}");
+    }
+
     public void SetLEDConfig(TouchpadLEDConfig config)
     {
         Log($"SetLEDConfig: R={config.Red} G={config.Green} B={config.Blue} mode={config.Mode}");
@@ -541,6 +561,15 @@ public sealed class ControllerService : IControllerService, IDisposable
 
             ControllerConnected?.Invoke(this, info);
             Log($"TryOpenDevice: ControllerConnected event fired for {info.Name}");
+
+            if (info.Features.AdaptiveTriggers)
+                SendTriggerCalibration();
+
+            if (info.Connection == ConnectionType.USB)
+            {
+                RouteAudioToSpeaker();
+                SetSpeakerVolume(100);
+            }
         }
         catch (Exception ex)
         {

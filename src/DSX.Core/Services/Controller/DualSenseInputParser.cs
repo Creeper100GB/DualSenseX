@@ -143,7 +143,7 @@ public static class DualSenseInputParser
             };
         }
 
-        return Math.Min(level * 10, 100);
+        return Math.Min(level * 10 + 5, 100);
     }
 
     public static bool ReadCharging(byte[] data)

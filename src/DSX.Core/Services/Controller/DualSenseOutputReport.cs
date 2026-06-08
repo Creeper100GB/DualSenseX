@@ -162,6 +162,9 @@ public sealed class DualSenseOutputReport
             var report = new byte[USBOutputReportSize];
             report[0] = USBOutputReportId;
             Buffer.BlockCopy(_state, 0, report, 1, OutputPayloadSize);
+            _state[ValidFlag0] = (byte)(_state[ValidFlag0] & ~(HapticsSelect | SpeakerVolumeEnable | MicVolumeEnable | AudioControlEnable));
+            _state[ValidFlag1] = (byte)(_state[ValidFlag1] & ~AudioControl2Enable);
+            _state[ValidFlag2] = 0;
             return report;
         }
     }
@@ -175,6 +178,9 @@ public sealed class DualSenseOutputReport
             report[1] = (byte)(((sequence & 0x0F) << 4) | BTOutputTag);
             Buffer.BlockCopy(_state, 0, report, 2, OutputPayloadSize);
             DSXCrc32.WriteCrc(report);
+            _state[ValidFlag0] = (byte)(_state[ValidFlag0] & ~(HapticsSelect | SpeakerVolumeEnable | MicVolumeEnable | AudioControlEnable));
+            _state[ValidFlag1] = (byte)(_state[ValidFlag1] & ~AudioControl2Enable);
+            _state[ValidFlag2] = 0;
             return report;
         }
     }
@@ -202,11 +208,21 @@ public sealed class DualSenseOutputReport
             Enums.TriggerMode.SlopeFeedback => BuildSlopeFeedbackTrigger(config),
             Enums.TriggerMode.Vibrate => BuildVibrateTrigger(config),
             Enums.TriggerMode.Custom => BuildCustomTrigger(config),
+            Enums.TriggerMode.Calibrate => BuildCalibrateTrigger(),
             _ => BuildOffTrigger()
         };
     }
 
     private static byte[] BuildOffTrigger() => new byte[11];
+
+    private static byte[] BuildCalibrateTrigger()
+    {
+        var d = new byte[11];
+        d[0] = Calibrate;
+        d[2] = 0xFF;
+        d[3] = 0xFF;
+        return d;
+    }
 
     private static byte[] BuildRigidTrigger(TriggerConfig c)
     {

@@ -69,7 +69,8 @@ public enum TriggerMode
     MultiplePositionFeedback,
     SlopeFeedback,
     Vibrate,
-    Custom
+    Custom,
+    Calibrate
 }
 
 public enum LEDMode
