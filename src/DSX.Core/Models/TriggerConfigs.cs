@@ -75,6 +75,7 @@ public class AudioHapticsConfig
     public double HeadsetVolume { get; set; } = 50;
     public double SpeakerVolume { get; set; } = 50;
     public bool SyncWithSystemVolume { get; set; } = true;
+    public VolumeSyncMode VolumeSyncMode { get; set; } = VolumeSyncMode.Stereo;
     public string SelectedDeviceId { get; set; } = string.Empty;
 }
 

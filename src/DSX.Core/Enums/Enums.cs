@@ -1,5 +1,14 @@
 namespace DSX.Core.Enums;
 
+public enum VolumeSyncMode
+{
+    Stereo,
+    Mono,
+    LeftOnly,
+    RightOnly,
+    Swap
+}
+
 public enum ControllerType
 {
     Unknown,

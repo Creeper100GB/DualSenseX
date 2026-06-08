@@ -24,6 +24,10 @@ public sealed class ControllerService : IControllerService, IDisposable
     private LEDMode _activeLEDMode = LEDMode.Off;
     private RainbowSpeed _rainbowSpeed = RainbowSpeed.Medium;
     private double _rainbowHue;
+    private TouchpadLEDConfig? _activeLEDConfig;
+    private double _breathingPhase;
+    private bool _strobingOn;
+    private double _lastBatteryLevel;
     private readonly System.Timers.Timer _ledTimer;
 
     public static Action<string>? LogAction { get; set; }
@@ -150,34 +154,72 @@ public sealed class ControllerService : IControllerService, IDisposable
 
     public void SetLEDConfig(TouchpadLEDConfig config)
     {
-        var report = GetActiveOutputReport();
-        if (report == null) { Log($"SetLEDConfig: no output report"); return; }
-
         Log($"SetLEDConfig: R={config.Red} G={config.Green} B={config.Blue} mode={config.Mode}");
         _activeLEDMode = config.Mode;
         _rainbowSpeed = config.RainbowSpeed;
+        _activeLEDConfig = config;
+        _breathingPhase = 0;
+        _strobingOn = true;
+
+        if (config.Mode == LEDMode.Off)
+        {
+            StopLEDTimer();
+            var report = GetActiveOutputReport();
+            if (report == null) { Log($"SetLEDConfig: no output report"); return; }
+            report.SetLightbar(0, 0, 0);
+            SendReport();
+            return;
+        }
 
         if (config.Mode == LEDMode.Rainbow)
         {
             _rainbowHue = 0;
             StartLEDTimer();
+            return;
         }
-        else
+
+        if (config.Mode == LEDMode.Breathing)
         {
-            StopLEDTimer();
-            report.SetLightbar(config.Red, config.Green, config.Blue);
-            SendReport();
+            StartLEDTimer();
+            return;
         }
+
+        if (config.Mode == LEDMode.Strobing)
+        {
+            StartLEDTimer();
+            return;
+        }
+
+        if (config.Mode == LEDMode.Battery)
+        {
+            StartLEDTimer();
+            return;
+        }
+
+        StopLEDTimer();
+        var rpt = GetActiveOutputReport();
+        if (rpt == null) { Log($"SetLEDConfig: no output report"); return; }
+        rpt.SetLightbar(config.Red, config.Green, config.Blue);
+        SendReport();
+        Log($"SetLEDConfig: sent static color report");
     }
 
     private void StartLEDTimer()
     {
         if (_ledTimer.Enabled) return;
-        _ledTimer.Interval = _rainbowSpeed switch
+        _ledTimer.Interval = _activeLEDMode switch
         {
-            RainbowSpeed.Slow => 80,
-            RainbowSpeed.Medium => 40,
-            RainbowSpeed.Fast => 20,
+            LEDMode.Rainbow => _rainbowSpeed switch
+            {
+                RainbowSpeed.Slow => 80,
+                RainbowSpeed.Medium => 40,
+                RainbowSpeed.Fast => 20,
+                RainbowSpeed.Hyper => 10,
+                _ => 40
+            },
+            LEDMode.Breathing => 30,
+            LEDMode.Strobing => _activeLEDConfig != null ? Math.Max(20, 120 - _activeLEDConfig.StrobingSpeed) : 60,
+            LEDMode.Battery => 2000,
             _ => 40
         };
         _ledTimer.Start();
@@ -190,13 +232,56 @@ public sealed class ControllerService : IControllerService, IDisposable
 
     private void OnLEDTimerElapsed(object? sender, ElapsedEventArgs e)
     {
-        if (_activeLEDMode != LEDMode.Rainbow) { StopLEDTimer(); return; }
         var report = GetActiveOutputReport();
         if (report == null) return;
 
-        _rainbowHue = (_rainbowHue + 2) % 360;
-        var (r, g, b) = HsvToRgb(_rainbowHue, 1.0, 1.0);
-        report.SetLightbar(r, g, b);
+        switch (_activeLEDMode)
+        {
+            case LEDMode.Rainbow:
+                _rainbowHue = (_rainbowHue + 2) % 360;
+                var (r, g, b) = HsvToRgb(_rainbowHue, 1.0, 1.0);
+                report.SetLightbar(r, g, b);
+                break;
+
+            case LEDMode.Breathing:
+                if (_activeLEDConfig == null) { StopLEDTimer(); return; }
+                var speed = _activeLEDConfig.BreathingSpeed > 0 ? _activeLEDConfig.BreathingSpeed : 50;
+                _breathingPhase += speed * 0.003;
+                if (_breathingPhase > Math.PI * 2) _breathingPhase -= Math.PI * 2;
+                var brightness = (Math.Sin(_breathingPhase) + 1.0) / 2.0;
+                report.SetLightbar(
+                    (byte)(_activeLEDConfig.Red * brightness),
+                    (byte)(_activeLEDConfig.Green * brightness),
+                    (byte)(_activeLEDConfig.Blue * brightness));
+                break;
+
+            case LEDMode.Strobing:
+                if (_activeLEDConfig == null) { StopLEDTimer(); return; }
+                _strobingOn = !_strobingOn;
+                if (_strobingOn)
+                    report.SetLightbar(_activeLEDConfig.Red, _activeLEDConfig.Green, _activeLEDConfig.Blue);
+                else
+                    report.SetLightbar(0, 0, 0);
+                break;
+
+            case LEDMode.Battery:
+                if (_activeLEDConfig == null) { StopLEDTimer(); return; }
+                var pct = _lastBatteryLevel;
+                byte br, bg, bb;
+                if (pct < 30)
+                    { br = _activeLEDConfig.BatteryLowRed; bg = _activeLEDConfig.BatteryLowGreen; bb = _activeLEDConfig.BatteryLowBlue; }
+                else if (pct < 60)
+                    { br = _activeLEDConfig.BatteryMedRed; bg = _activeLEDConfig.BatteryMedGreen; bb = _activeLEDConfig.BatteryMedBlue; }
+                else
+                    { br = _activeLEDConfig.BatteryFullRed; bg = _activeLEDConfig.BatteryFullGreen; bb = _activeLEDConfig.BatteryFullBlue; }
+                report.SetLightbar(br, bg, bb);
+                break;
+
+            default:
+                StopLEDTimer();
+                return;
+        }
+
         SendReport();
     }
 
@@ -355,10 +440,10 @@ public sealed class ControllerService : IControllerService, IDisposable
 
     private void SendReport()
     {
-        if (_activeControllerId == null) return;
-        if (!_streams.TryGetValue(_activeControllerId, out var stream)) return;
-        if (!_controllers.TryGetValue(_activeControllerId, out var controller)) return;
-        if (!_outputReports.TryGetValue(_activeControllerId, out var outputReport)) return;
+        if (_activeControllerId == null) { Log("SendReport: no active controller"); return; }
+        if (!_streams.TryGetValue(_activeControllerId, out var stream)) { Log("SendReport: no stream"); return; }
+        if (!_controllers.TryGetValue(_activeControllerId, out var controller)) { Log("SendReport: no controller info"); return; }
+        if (!_outputReports.TryGetValue(_activeControllerId, out var outputReport)) { Log("SendReport: no output report"); return; }
 
         lock (_writeLock)
         {
@@ -379,10 +464,10 @@ public sealed class ControllerService : IControllerService, IDisposable
                 int count = System.Threading.Interlocked.Increment(ref _sendReportCount);
                 if (count % 500 == 0)
                 {
-                    Log($"SendReport: #{count} {report.Length}B conn={controller.Connection}");
+                    Log($"SendReport: #{count} {report.Length}B conn={controller.Connection} ledMode={_activeLEDMode} rgb={report[^4]:X2},{report[^3]:X2},{report[^2]:X2}");
                 }
             }
-            catch (IOException) { }
+            catch (IOException ex) { Log($"SendReport IO error: {ex.Message}"); }
             catch (ObjectDisposedException) { }
             catch (Exception ex)
             {
@@ -502,6 +587,7 @@ public sealed class ControllerService : IControllerService, IDisposable
                 info.BatteryPercentage = DualSenseInputParser.ReadBattery(data, info.Connection);
                 info.IsCharging = DualSenseInputParser.ReadCharging(data);
                 info.BatteryStatus = DetermineBatteryStatus(info.BatteryPercentage, info.IsCharging);
+                _lastBatteryLevel = info.BatteryPercentage;
             }
             catch (IOException)
             {

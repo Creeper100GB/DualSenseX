@@ -114,6 +114,11 @@ public partial class LEDViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<string> _availableSkins = new() { "Default", "Edge", "Custom" };
 
+    [ObservableProperty]
+    private bool _isDualSenseEdge;
+
+    public ObservableCollection<MuteLEDMode> AvailableMuteLEDModes { get; } = new(Enum.GetValues<MuteLEDMode>());
+
     public LEDViewModel(MainViewModel main)
     {
         _main = main;
@@ -121,8 +126,16 @@ public partial class LEDViewModel : ObservableObject
         {
             if (e.PropertyName == nameof(MainViewModel.ActiveProfile))
                 LoadFromProfile();
+            if (e.PropertyName == nameof(MainViewModel.ActiveController))
+                UpdateControllerType();
         };
         LoadFromProfile();
+        UpdateControllerType();
+    }
+
+    private void UpdateControllerType()
+    {
+        IsDualSenseEdge = _main.ActiveController?.Type == Enums.ControllerType.DualSenseEdge;
     }
 
     private void LoadFromProfile()
@@ -237,6 +250,12 @@ public partial class LEDViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void SetRainbowSpeed(RainbowSpeed speed)
+    {
+        SelectedRainbowSpeed = speed;
+    }
+
+    [RelayCommand]
     private void ResetToDefaults()
     {
         SelectedTouchpadMode = LEDMode.Off;
@@ -248,5 +267,9 @@ public partial class LEDViewModel : ObservableObject
         SelectedMuteMode = MuteLEDMode.FollowMicMuteState;
         MutedRed = 255; MutedGreen = 0; MutedBlue = 0;
         UnmutedRed = 0; UnmutedGreen = 255; UnmutedBlue = 0;
+
+        ApplyTouchpadLED();
+        ApplyPlayerLED();
+        ApplyMuteLED();
     }
 }

@@ -14,6 +14,7 @@ public interface IAudioService
     string DefaultDeviceId { get; }
     bool IsBTHapticsRunning { get; }
     string BTHapticsStatus { get; }
+    Services.Audio.SimpleHapticsPipeline? SimpleHaptics { get; }
 
     void StartCapture(string deviceId);
     void StopCapture();

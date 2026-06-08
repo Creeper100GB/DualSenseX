@@ -47,6 +47,12 @@ public partial class HapticsRumbleViewModel : ObservableObject
     private bool _syncWithSystemVolume = true;
 
     [ObservableProperty]
+    private VolumeSyncMode _volumeSyncMode = VolumeSyncMode.Stereo;
+
+    [ObservableProperty]
+    private string _selectedVolumeSyncText = "Stereo";
+
+    [ObservableProperty]
     private bool _showBTHaptics;
 
     [ObservableProperty]
@@ -124,16 +130,32 @@ public partial class HapticsRumbleViewModel : ObservableObject
     [ObservableProperty]
     private byte _lastRightMotor;
 
+    partial void OnSelectedVolumeSyncTextChanged(string value)
+    {
+        VolumeSyncMode = value switch
+        {
+            "Stereo" => VolumeSyncMode.Stereo,
+            "Mono" => VolumeSyncMode.Mono,
+            "Left Only" => VolumeSyncMode.LeftOnly,
+            "Right Only" => VolumeSyncMode.RightOnly,
+            "Swap" => VolumeSyncMode.Swap,
+            _ => VolumeSyncMode.Stereo
+        };
+        UpdateSimpleHapticsConfig();
+    }
+
     partial void OnLeftMotorVolumeChanged(double value)
     {
         try { _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0)); }
         catch { }
+        UpdateSimpleHapticsConfig();
     }
 
     partial void OnRightMotorVolumeChanged(double value)
     {
         try { _main.ControllerService.SetHeadphoneVolume((byte)(value * 0x7F / 100.0)); }
         catch { }
+        UpdateSimpleHapticsConfig();
     }
 
     partial void OnHeadsetVolumeChanged(double value)
@@ -146,6 +168,15 @@ public partial class HapticsRumbleViewModel : ObservableObject
     {
         try { _main.ControllerService.SetSpeakerVolume((byte)(value * 0x64 / 100.0)); }
         catch { }
+    }
+
+    private void UpdateSimpleHapticsConfig()
+    {
+        var pipeline = _main.AudioService.SimpleHaptics;
+        if (pipeline == null) return;
+        pipeline.LeftMotorVolume = LeftMotorVolume;
+        pipeline.RightMotorVolume = RightMotorVolume;
+        pipeline.SyncMode = VolumeSyncMode;
     }
 
     public event EventHandler? BrowseAudioFileDialogRequested;
@@ -215,6 +246,18 @@ public partial class HapticsRumbleViewModel : ObservableObject
         BTRightMotorIntensity = profile.BTHapticsConfig.RightMotorIntensity;
         BTLatencyMs = profile.BTHapticsConfig.LatencyCompensationMs;
         AudioFilePath = profile.BTHapticsConfig.AudioFilePath;
+
+        VolumeSyncMode = profile.AudioHapticsConfig.VolumeSyncMode;
+        SelectedVolumeSyncText = VolumeSyncMode switch
+        {
+            Enums.VolumeSyncMode.Stereo => "Stereo",
+            Enums.VolumeSyncMode.Mono => "Mono",
+            Enums.VolumeSyncMode.LeftOnly => "Left Only",
+            Enums.VolumeSyncMode.RightOnly => "Right Only",
+            Enums.VolumeSyncMode.Swap => "Swap",
+            _ => "Stereo"
+        };
+        UpdateSimpleHapticsConfig();
     }
 
     private void UpdateControllerInfo()
@@ -240,9 +283,20 @@ public partial class HapticsRumbleViewModel : ObservableObject
     {
         AudioHapticsEnabled = !AudioHapticsEnabled;
         if (AudioHapticsEnabled)
+        {
             _main.AudioService.StartCapture(SelectedAudioDevice);
+            if (_main.AudioService.SimpleHaptics != null)
+            {
+                _main.AudioService.SimpleHaptics.Enabled = true;
+                UpdateSimpleHapticsConfig();
+            }
+        }
         else
+        {
+            if (_main.AudioService.SimpleHaptics != null)
+                _main.AudioService.SimpleHaptics.Enabled = false;
             _main.AudioService.StopCapture();
+        }
     }
 
     [RelayCommand]

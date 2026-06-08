@@ -20,6 +20,7 @@ public sealed class AudioService : IAudioService, IDisposable
 
     private readonly object _btHapticsLock = new();
     private BTHapticsPipeline? _btHaptics;
+    private SimpleHapticsPipeline? _simpleHaptics;
 
     private int _hapticsLogCounter;
 
@@ -28,6 +29,7 @@ public sealed class AudioService : IAudioService, IDisposable
     public event EventHandler<string>? BTHapticsError;
 
     public BTHapticsPipeline? BTHaptics => _btHaptics;
+    public SimpleHapticsPipeline? SimpleHaptics => _simpleHaptics;
 
     public IReadOnlyList<string> AvailableDevices
     {
@@ -59,6 +61,8 @@ public sealed class AudioService : IAudioService, IDisposable
     {
         _controllerService = controllerService;
         _deviceEnumerator = new MMDeviceEnumerator();
+        if (controllerService != null)
+            _simpleHaptics = new SimpleHapticsPipeline(controllerService);
     }
 
     public void StartBTHaptics(
@@ -335,6 +339,7 @@ public sealed class AudioService : IAudioService, IDisposable
             }
         }
 
+        _simpleHaptics?.Stop();
         _deviceEnumerator?.Dispose();
     }
 
@@ -351,6 +356,8 @@ public sealed class AudioService : IAudioService, IDisposable
 
             if (sampleCount == 0)
                 return;
+
+            _simpleHaptics?.Process(e.Buffer, e.BytesRecorded, bytesPerSample, channelCount);
 
             float[] monoSamples = new float[sampleCount];
 

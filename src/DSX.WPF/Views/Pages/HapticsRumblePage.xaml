@@ -268,6 +268,28 @@
                                        Margin="0,6,0,0" />
                         </StackPanel>
                     </UniformGrid>
+
+                    <StackPanel Margin="0,16,0,0">
+                        <TextBlock Text="Volume Sync Mode"
+                                   Foreground="{StaticResource TextSecondary}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,8" />
+                        <ComboBox Style="{StaticResource DSXComboBox}"
+                                  SelectedItem="{Binding SelectedVolumeSyncText}"
+                                  Width="240"
+                                  HorizontalAlignment="Left">
+                            <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Stereo</system:String>
+                            <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Mono</system:String>
+                            <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Left Only</system:String>
+                            <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Right Only</system:String>
+                            <system:String xmlns:system="clr-namespace:System;assembly=mscorlib">Swap</system:String>
+                        </ComboBox>
+                        <TextBlock Text="Stereo: Left speaker drives left motor, right speaker drives right motor"
+                                   Foreground="{StaticResource TextMuted}"
+                                   FontSize="11"
+                                   Margin="0,4,0,0" />
+                    </StackPanel>
                 </StackPanel>
             </Border>
 

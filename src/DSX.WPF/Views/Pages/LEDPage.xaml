@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:DSX.WPF.Controls"
              xmlns:converters="clr-namespace:DSX.WPF.Converters"
+             xmlns:enums="clr-namespace:DSX.Core.Enums;assembly=DSX.Core"
              mc:Ignorable="d"
              d:DesignWidth="900" d:DesignHeight="900">
 
@@ -12,6 +13,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
         <converters:RgbToBrushConverter x:Key="RgbToBrushConverter" />
+        <converters:EnumBoolConverter x:Key="EnumBoolConverter" />
     </UserControl.Resources>
 
     <ScrollViewer Style="{StaticResource DSXScrollViewer}" VerticalScrollBarVisibility="Auto">
@@ -97,18 +99,26 @@
                         <UniformGrid Columns="4" Width="400" HorizontalAlignment="Left">
                             <Button Style="{StaticResource SecondaryButton}"
                                     Content="Slow"
+                                    Command="{Binding SetRainbowSpeedCommand}"
+                                    CommandParameter="{x:Static enums:RainbowSpeed.Slow}"
                                     Margin="0,0,4,0"
                                     Padding="12,6" />
                             <Button Style="{StaticResource SecondaryButton}"
                                     Content="Medium"
+                                    Command="{Binding SetRainbowSpeedCommand}"
+                                    CommandParameter="{x:Static enums:RainbowSpeed.Medium}"
                                     Margin="4,0,4,0"
                                     Padding="12,6" />
                             <Button Style="{StaticResource SecondaryButton}"
                                     Content="Fast"
+                                    Command="{Binding SetRainbowSpeedCommand}"
+                                    CommandParameter="{x:Static enums:RainbowSpeed.Fast}"
                                     Margin="4,0,4,0"
                                     Padding="12,6" />
                             <Button Style="{StaticResource SecondaryButton}"
                                     Content="Hyper"
+                                    Command="{Binding SetRainbowSpeedCommand}"
+                                    CommandParameter="{x:Static enums:RainbowSpeed.Hyper}"
                                     Margin="4,0,0,0"
                                     Padding="12,6" />
                         </UniformGrid>
@@ -297,15 +307,17 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <RadioButton Content="Always On"
                                      GroupName="MuteLED"
+                                     IsChecked="{Binding SelectedMuteMode, Converter={StaticResource EnumBoolConverter}, ConverterParameter=AlwaysOn}"
                                      Foreground="{StaticResource TextSecondary}"
                                      Margin="0,0,16,0" />
                         <RadioButton Content="Always Off"
                                      GroupName="MuteLED"
+                                     IsChecked="{Binding SelectedMuteMode, Converter={StaticResource EnumBoolConverter}, ConverterParameter=AlwaysOff}"
                                      Foreground="{StaticResource TextSecondary}"
                                      Margin="0,0,16,0" />
                         <RadioButton Content="Follows Mic Mute State"
                                      GroupName="MuteLED"
-                                     IsChecked="True"
+                                     IsChecked="{Binding SelectedMuteMode, Converter={StaticResource EnumBoolConverter}, ConverterParameter=FollowMicMuteState}"
                                      Foreground="{StaticResource TextSecondary}" />
                     </StackPanel>
 
