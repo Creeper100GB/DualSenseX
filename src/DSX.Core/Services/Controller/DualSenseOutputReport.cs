@@ -155,7 +155,6 @@ public sealed class DualSenseOutputReport
         {
             var report = new byte[USBOutputReportSize];
             report[0] = USBOutputReportId;
-            EnsureFlags();
             Buffer.BlockCopy(_state, 0, report, 1, OutputPayloadSize);
             return report;
         }
@@ -168,17 +167,10 @@ public sealed class DualSenseOutputReport
             var report = new byte[BTOutputReportSize];
             report[0] = BTOutputReportId;
             report[1] = (byte)(((sequence & 0x0F) << 4) | BTOutputTag);
-            EnsureFlags();
             Buffer.BlockCopy(_state, 0, report, 2, OutputPayloadSize);
             DSXCrc32.WriteCrc(report);
             return report;
         }
-    }
-
-    private void EnsureFlags()
-    {
-        _state[ValidFlag0] = 0xFF;
-        _state[ValidFlag1] = 0xFF & ~ReleaseLeds;
     }
 
     public static byte[] BuildTriggerBytes(TriggerConfig config)
