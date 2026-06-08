@@ -120,7 +120,7 @@ public partial class MainViewModel : ObservableObject
 
     private void OnControllerConnected(object? sender, ControllerDeviceInfo info)
     {
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
         {
             if (!ConnectedControllers.Any(c => c.DeviceId == info.DeviceId))
                 ConnectedControllers.Add(info);
@@ -131,7 +131,7 @@ public partial class MainViewModel : ObservableObject
 
     private void OnControllerDisconnected(object? sender, string deviceId)
     {
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
         {
             var existing = ConnectedControllers.FirstOrDefault(c => c.DeviceId == deviceId);
             if (existing != null)
@@ -146,7 +146,7 @@ public partial class MainViewModel : ObservableObject
 
     private void OnProfileChanged(object? sender, EventArgs e)
     {
-        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+        System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
         {
             ActiveProfile = _profileService.ActiveProfile;
         });

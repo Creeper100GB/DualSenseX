@@ -145,9 +145,60 @@ public partial class LEDViewModel : ObservableObject
     {
         if (_main.ControllerService.ActiveController?.IsConnected != true)
             return;
-        ApplyTouchpadLED();
-        ApplyPlayerLED();
-        ApplyMuteLED();
+
+        // Snapshot the configs on the calling thread (usually UI thread)
+        var touchpadConfig = new TouchpadLEDConfig
+        {
+            Mode = SelectedTouchpadMode,
+            Red = TouchpadRed,
+            Green = TouchpadGreen,
+            Blue = TouchpadBlue,
+            RainbowSpeed = SelectedRainbowSpeed,
+            BreathingSpeed = BreathingSpeed,
+            StrobingSpeed = StrobingSpeed,
+            BatteryLowRed = BatteryLowRed,
+            BatteryLowGreen = BatteryLowGreen,
+            BatteryLowBlue = BatteryLowBlue,
+            BatteryMedRed = BatteryMedRed,
+            BatteryMedGreen = BatteryMedGreen,
+            BatteryMedBlue = BatteryMedBlue,
+            BatteryFullRed = BatteryFullRed,
+            BatteryFullGreen = BatteryFullGreen,
+            BatteryFullBlue = BatteryFullBlue
+        };
+        var playerConfig = new PlayerLEDConfig
+        {
+            Mode = SelectedPlayerMode,
+            FlashWhileCharging = FlashWhileCharging
+        };
+        var muteConfig = new MuteLEDConfig
+        {
+            Mode = SelectedMuteMode,
+            MutedRed = MutedRed,
+            MutedGreen = MutedGreen,
+            MutedBlue = MutedBlue,
+            UnmutedRed = UnmutedRed,
+            UnmutedGreen = UnmutedGreen,
+            UnmutedBlue = UnmutedBlue
+        };
+
+        // Update profile (lightweight, can stay on caller thread)
+        var profile = _main.ActiveProfile;
+        if (profile != null)
+        {
+            profile.TouchpadLEDConfig = touchpadConfig;
+            profile.PlayerLEDConfig = playerConfig;
+            profile.MuteLEDConfig = muteConfig;
+            _main.ProfileService.UpdateProfile(profile);
+        }
+
+        // HID writes can block up to 500ms each — offload to background thread
+        Task.Run(() =>
+        {
+            _main.ControllerService.SetLEDConfig(touchpadConfig);
+            _main.ControllerService.SetPlayerLEDConfig(playerConfig);
+            _main.ControllerService.SetMuteLEDConfig(muteConfig);
+        });
     }
 
     private void UpdateControllerType()
