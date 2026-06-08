@@ -178,7 +178,7 @@ public sealed class DualSenseOutputReport
     private void EnsureFlags()
     {
         _state[ValidFlag0] = 0xFF;
-        _state[ValidFlag1] = 0xFF;
+        _state[ValidFlag1] = 0xFF & ~ReleaseLeds;
     }
 
     public static byte[] BuildTriggerBytes(TriggerConfig config)

@@ -15,6 +15,11 @@ public sealed class SimpleHapticsPipeline
     private double _smoothRight;
     private const double SmoothFactor = 0.25;
     private int _frameCount;
+    private const int MinIntervalMs = 15;
+    private readonly System.Diagnostics.Stopwatch _throttle = System.Diagnostics.Stopwatch.StartNew();
+    private double _lastSentLeft = -1;
+    private double _lastSentRight = -1;
+    private const double ChangeThreshold = 2.0;
 
     public SimpleHapticsPipeline(IControllerService controllerService)
     {
@@ -132,6 +137,17 @@ public sealed class SimpleHapticsPipeline
         double leftPct = System.Math.Min(100, System.Math.Max(0, _smoothLeft * 100));
         double rightPct = System.Math.Min(100, System.Math.Max(0, _smoothRight * 100));
 
+        long elapsed = _throttle.ElapsedMilliseconds;
+        double deltaL = System.Math.Abs(leftPct - _lastSentLeft);
+        double deltaR = System.Math.Abs(rightPct - _lastSentRight);
+
+        if (elapsed < MinIntervalMs && deltaL < ChangeThreshold && deltaR < ChangeThreshold && elapsed < 50)
+            return;
+
+        _lastSentLeft = leftPct;
+        _lastSentRight = rightPct;
+        _throttle.Restart();
+
         _frameCount++;
         if (_frameCount % 20 == 0)
         {
@@ -147,6 +163,9 @@ public sealed class SimpleHapticsPipeline
         _enabled = false;
         _smoothLeft = 0;
         _smoothRight = 0;
+        _lastSentLeft = -1;
+        _lastSentRight = -1;
+        _throttle.Restart();
         _controllerService.SetRumble(0, 0);
     }
 }

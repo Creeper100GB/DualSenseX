@@ -93,12 +93,6 @@
                              GroupName="Nav"
                              Style="{StaticResource NavigationButton}"
                              Checked="OnNavChecked" />
-                <RadioButton x:Name="NavControllerMapping"
-                             Content="Controller Mapping"
-                             Tag="&#xE943;"
-                             GroupName="Nav"
-                             Style="{StaticResource NavigationButton}"
-                             Checked="OnNavChecked" />
                 <RadioButton x:Name="NavAdaptiveTriggers"
                              Content="Adaptive Triggers"
                              Tag="&#xE963;"

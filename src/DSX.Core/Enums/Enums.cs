@@ -212,7 +212,6 @@ public enum NavigationPage
 {
     Home,
     MyControllers,
-    ControllerMapping,
     AdaptiveTriggers,
     LEDLighting,
     HapticsRumble,

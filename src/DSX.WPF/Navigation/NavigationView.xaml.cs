@@ -73,7 +73,6 @@ public partial class NavigationView : UserControl
     {
         _navMap[NavHome] = NavigationPage.Home;
         _navMap[NavMyControllers] = NavigationPage.MyControllers;
-        _navMap[NavControllerMapping] = NavigationPage.ControllerMapping;
         _navMap[NavAdaptiveTriggers] = NavigationPage.AdaptiveTriggers;
         _navMap[NavLEDLighting] = NavigationPage.LEDLighting;
         _navMap[NavHapticsRumble] = NavigationPage.HapticsRumble;
@@ -165,7 +164,6 @@ public partial class NavigationView : UserControl
         {
             new("\uE80F", "Home", NavigationPage.Home),
             new("\uE960", "My Controllers", NavigationPage.MyControllers),
-            new("\uE943", "Controller Mapping", NavigationPage.ControllerMapping),
             new("\uE963", "Adaptive Triggers", NavigationPage.AdaptiveTriggers),
             new("\uE768", "LED / Lighting", NavigationPage.LEDLighting),
             new("\uE95F", "Haptics / Rumble", NavigationPage.HapticsRumble),

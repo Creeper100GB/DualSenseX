@@ -36,7 +36,7 @@ public sealed class ControllerService : IControllerService, IDisposable
     {
         _ledTimer = new System.Timers.Timer(40);
         _ledTimer.Elapsed += OnLEDTimerElapsed;
-        _ledTimer.AutoReset = true;
+        _ledTimer.AutoReset = false;
     }
 
     private static void Log(string message) => LogAction?.Invoke(message);
@@ -206,7 +206,7 @@ public sealed class ControllerService : IControllerService, IDisposable
 
     private void StartLEDTimer()
     {
-        if (_ledTimer.Enabled) return;
+        _ledTimer.Stop();
         _ledTimer.Interval = _activeLEDMode switch
         {
             LEDMode.Rainbow => _rainbowSpeed switch
@@ -283,6 +283,12 @@ public sealed class ControllerService : IControllerService, IDisposable
         }
 
         SendReport();
+
+        try
+        {
+            _ledTimer.Start();
+        }
+        catch { }
     }
 
     private static (byte r, byte g, byte b) HsvToRgb(double h, double s, double v)

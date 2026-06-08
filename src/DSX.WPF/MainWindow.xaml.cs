@@ -318,7 +318,6 @@ public partial class MainWindow : Window
         {
             NavigationPage.Home => ViewModel?.HomeViewModel,
             NavigationPage.MyControllers => ViewModel?.MyControllersViewModel,
-            NavigationPage.ControllerMapping => ViewModel?.ControllerMappingViewModel,
             NavigationPage.AdaptiveTriggers => ViewModel?.AdaptiveTriggersViewModel,
             NavigationPage.LEDLighting => ViewModel?.LEDViewModel,
             NavigationPage.HapticsRumble => ViewModel?.HapticsRumbleViewModel,
@@ -340,7 +339,6 @@ public partial class MainWindow : Window
             {
                 NavigationPage.Home => new HomePage(),
                 NavigationPage.MyControllers => new MyControllersPage(),
-                NavigationPage.ControllerMapping => new ControllerMappingPage(),
                 NavigationPage.AdaptiveTriggers => new AdaptiveTriggersPage(),
                 NavigationPage.LEDLighting => new LEDPage(),
                 NavigationPage.HapticsRumble => new HapticsRumblePage(),
@@ -429,7 +427,6 @@ public partial class MainWindow : Window
     {
         NavigationPage.Home => "Home",
         NavigationPage.MyControllers => "My Controllers",
-        NavigationPage.ControllerMapping => "Controller Mapping",
         NavigationPage.AdaptiveTriggers => "Adaptive Triggers",
         NavigationPage.LEDLighting => "LED / Lighting",
         NavigationPage.HapticsRumble => "Haptics / Rumble",
@@ -446,7 +443,6 @@ public partial class MainWindow : Window
     {
         NavigationPage.Home => "\uE80F",
         NavigationPage.MyControllers => "\uE960",
-        NavigationPage.ControllerMapping => "\uE943",
         NavigationPage.AdaptiveTriggers => "\uE963",
         NavigationPage.LEDLighting => "\uE768",
         NavigationPage.HapticsRumble => "\uE95F",

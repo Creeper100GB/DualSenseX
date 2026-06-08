@@ -383,26 +383,6 @@
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimary}"
                                Margin="0,0,0,16" />
-
-                    <TextBlock Text="Controller View Skin"
-                               Foreground="{StaticResource TextSecondary}"
-                               Margin="0,0,0,4" />
-                    <ComboBox Style="{StaticResource DSXComboBox}"
-                              ItemsSource="{Binding AvailableSkins}"
-                              SelectedItem="{Binding ControllerViewSkin}"
-                              Width="200"
-                              HorizontalAlignment="Left"
-                              Margin="0,0,0,12" />
-
-                    <Border Background="{StaticResource SecondaryBackground}"
-                            CornerRadius="{StaticResource DefaultCornerRadius}"
-                            Width="200" Height="100"
-                            HorizontalAlignment="Left">
-                        <TextBlock Text="Skin Preview"
-                                   Foreground="{StaticResource TextMuted}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
                 </StackPanel>
             </Border>
 

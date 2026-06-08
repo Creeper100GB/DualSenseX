@@ -54,7 +54,6 @@ public partial class MainViewModel : ObservableObject
 
     public HomeViewModel HomeViewModel { get; }
     public MyControllersViewModel MyControllersViewModel { get; }
-    public ControllerMappingViewModel ControllerMappingViewModel { get; }
     public AdaptiveTriggersViewModel AdaptiveTriggersViewModel { get; }
     public LEDViewModel LEDViewModel { get; }
     public HapticsRumbleViewModel HapticsRumbleViewModel { get; }
@@ -90,7 +89,6 @@ public partial class MainViewModel : ObservableObject
 
         HomeViewModel = new HomeViewModel(this);
         MyControllersViewModel = new MyControllersViewModel(this);
-        ControllerMappingViewModel = new ControllerMappingViewModel(this);
         AdaptiveTriggersViewModel = new AdaptiveTriggersViewModel(this);
         LEDViewModel = new LEDViewModel(this);
         HapticsRumbleViewModel = new HapticsRumbleViewModel(this);
